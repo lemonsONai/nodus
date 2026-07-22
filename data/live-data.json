@@ -66,6 +66,21 @@
       "notes": "Use a shallow leg drive to generate power before pressing overhead.",
       "gif": "assets/exercises/Double-Push-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-i9b4zog",
+      "name": "Dumbbell Arnold Press",
+      "category": "strength",
+      "primaryMuscle": "Shoulders",
+      "secondaryMuscles": [
+        "Triceps",
+        "Upper Chest",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Rotate the dumbbells smoothly while pressing and lower under full control.",
+      "gif": "assets/exercises/Dumbbell-Arnold-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
