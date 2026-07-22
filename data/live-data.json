@@ -154,6 +154,20 @@
       "notes": "Keep your elbows close to your body and press without flaring them out.",
       "gif": "assets/exercises/Close-Grip-Barbell-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-o264jgz",
+      "name": "Incline Dumbbell Press",
+      "category": "strength",
+      "primaryMuscle": "Upper Chest",
+      "secondaryMuscles": [
+        "Shoulders",
+        "Triceps"
+      ],
+      "difficulty": "beginner",
+      "notes": "Press upward with control while keeping your chest lifted throughout the movement.",
+      "gif": "assets/exercises/Incline-Dumbbell-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
