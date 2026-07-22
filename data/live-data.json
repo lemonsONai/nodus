@@ -202,6 +202,23 @@
       "notes": "Keep a strong hip hinge and row one kettlebell at a time without rotating your torso.",
       "gif": "assets/exercises/Gorilla-Row.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-1784761538289",
+      "name": "Bent Over Row",
+      "category": "strength",
+      "primaryMuscle": "Back (Lats)",
+      "secondaryMuscles": [
+        "Rhomboids",
+        "Traps",
+        "Rear Delts",
+        "Biceps",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Hinge at the hips, keep your back neutral and pull the bar toward your lower ribs.",
+      "gif": "assets/exercises/Bent-Over-Row.png",
+      "thumbnail": ""
     }
   ],
   "workouts": [
