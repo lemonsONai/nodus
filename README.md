@@ -126,6 +126,24 @@ Sempre que editares algo (nome do treino, exercício, cor, etc.), aparece
 uma pequena confirmação "Guardado ✓" no fundo do ecrã — não há botão de
 "Guardar" explícito porque tudo grava automaticamente e de imediato.
 
+## Estrutura: Admin vs. Gerir
+
+- **Admin** (⚙): só definições — nome da pessoa, cor de destaque, plano
+  semanal, sincronização/exportar, repor dados de origem.
+- **Gerir** (novo separador): aqui crias e editas **treinos** (agrupados
+  por categoria, com botão de editar/apagar) e **exercícios** — incluindo
+  associar exercícios aos treinos (via "Editar" → abre o Builder).
+
+## Editar um treino — modo de rascunho com Guardar
+
+Ao editares um treino (pelo lápis, ou por "Editar" em Gerir), entras num
+**modo de edição**: tudo o que fazes (adicionar/remover exercício,
+ajustar séries/descanso, mudar nome ou etiqueta do dia) fica só num
+rascunho local até tocares em **"Guardar treino"**. Se saíres sem
+guardar (✕), as alterações são descartadas — nada fica persistido a
+meio. O Player nunca é afetado pelo que estás a editar; só reflete a
+última versão guardada.
+
 ## Adicionar um exercício novo
 
 Duas formas:

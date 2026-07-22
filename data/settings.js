@@ -7,5 +7,6 @@ window.NODUS_DATA.settings = {
   theme: "dark",
   defaultRestSeconds: 60,
   accentColor: "#C9FF3D",
-  personName: ""
+  personName: "",
+  backgroundStyle: "glow"
 };

@@ -118,6 +118,7 @@ function findExercise(id) {
 
 function applyTheme() {
   document.documentElement.style.setProperty("--accent", state.settings.accentColor);
+  document.body.className = `bg-${state.settings.backgroundStyle || "glow"}`;
 }
 
 function showToast(msg) {
@@ -157,6 +158,7 @@ const ICONS = {
   chevronLeft: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`,
   chevronRight: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`,
   edit: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l11-11a2.1 2.1 0 0 0-4-4L4 16v4Z"/><path d="M13.5 6.5l4 4"/></svg>`,
+  manage: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>`,
 };
 
 function icon(name) {
@@ -209,6 +211,7 @@ function render() {
   else if (parts[0] === "plan") html = viewPlan(Number(parts[1] || 0));
   else if (parts[0] === "history") html = viewHistory();
   else if (parts[0] === "info") html = viewInfo();
+  else if (parts[0] === "manage") html = viewManage();
   else if (parts[0] === "admin") html = viewAdmin();
   else html = viewHome();
 
@@ -223,6 +226,7 @@ function bottomNav(hash) {
     <a href="#/" class="${active("")}">${icon("home")}<span>Início</span></a>
     <a href="#/plan/0" class="${active("plan")}">${icon("calendar")}<span>Plano</span></a>
     <a href="#/categories" class="${active("categories")}">${icon("grid")}<span>Categorias</span></a>
+    <a href="#/manage" class="${active("manage")}">${icon("manage")}<span>Gerir</span></a>
     <a href="#/admin" class="${active("admin")}">${icon("settings")}<span>Admin</span></a>
   </nav>`;
 }
@@ -232,7 +236,6 @@ function bottomNav(hash) {
 function viewHome() {
   return `
     <div style="text-align:center;padding:4px 0 20px;">
-      <img src="assets/branding/logo.png" alt="Nodus" style="height:24px;display:inline-block;margin-bottom:18px;">
       <p style="color:rgba(255,255,255,0.55);font-size:13px;margin:0 0 6px;">Bom dia</p>
       <h1 style="color:#fff;font-size:30px;font-weight:700;letter-spacing:-0.5px;line-height:1.15;margin:0;">Escolhe o teu caminho</h1>
     </div>
@@ -592,18 +595,29 @@ function viewCategoryList(cat) {
 
 /* ---------- Builder ---------- */
 
-function viewBuilder(workoutId, presetDay) {
-  let workout = state.workouts.find((w) => w.id === workoutId);
+let builderDraft = null;
 
-  if (!workout) {
-    // se vier de uma categoria (não de um id de treino existente), cria um novo
-    const category = workoutId || "custom";
-    workout = { id: uid("wo"), name: presetDay ? `Treino ${presetDay}` : "Novo treino", category, day: presetDay || undefined, exercises: [] };
-    const workouts = [...state.workouts, workout];
-    state.workouts = workouts;
-    navigate(`#/builder/${workout.id}`);
-    return "";
+function viewBuilder(workoutIdOrCategory, presetDay) {
+  const sourceKey = `${workoutIdOrCategory}:${presetDay || ""}`;
+  const existing = state.workouts.find((w) => w.id === workoutIdOrCategory);
+
+  if (!builderDraft || builderDraft._sourceKey !== sourceKey) {
+    if (existing) {
+      builderDraft = JSON.parse(JSON.stringify(existing));
+    } else {
+      const category = workoutIdOrCategory || "custom";
+      builderDraft = {
+        id: uid("wo"),
+        name: presetDay ? `Treino ${presetDay}` : "Novo treino",
+        day: presetDay || "",
+        category,
+        exercises: [],
+      };
+    }
+    builderDraft._sourceKey = sourceKey;
   }
+
+  const workout = builderDraft;
 
   const rows = workout.exercises.map((we, idx) => {
     const ex = findExercise(we.exerciseId);
@@ -639,30 +653,35 @@ function viewBuilder(workoutId, presetDay) {
     (ex) => !workout.exercises.some((we) => we.exerciseId === ex.id)
   );
 
+  const alreadySaved = state.workouts.some((w) => w.id === workout.id);
+
   return `
-    ${topbarHtml("Editar dia", `<a href="#/">${icon("close")}</a>`)}
+    ${topbarHtml("Editar dia", `<a href="#/manage">${icon("close")}</a>`)}
+
+    <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 16px;">MODO DE EDIÇÃO — as alterações só ficam ao tocares em "Guardar treino"</p>
 
     <label>Nome do treino</label>
-    <input type="text" id="w-name" value="${workout.name}" data-workout-id="${workout.id}">
-    <label>Etiqueta do dia (opcional, ex: "Dia 1")</label>
-    <input type="text" id="w-day" value="${workout.day || ""}" data-workout-id="${workout.id}">
+    <input type="text" id="w-name" value="${workout.name}">
+    <label>Etiqueta do dia (opcional, ex: "A")</label>
+    <input type="text" id="w-day" value="${workout.day || ""}">
 
     <div class="card" style="padding:0;margin-bottom:20px;">
       ${rows || `<p style="color:var(--text-faint);font-size:13px;padding:16px;">Sem exercícios ainda.</p>`}
     </div>
 
     <p class="section-label">Adicionar exercício</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
       ${available.map((ex) => `
-        <button class="btn" style="height:36px;padding:0 12px;font-size:12px;width:auto;" data-add-ex="${ex.id}" data-workout="${workout.id}">+ ${ex.name}</button>
+        <button class="btn" style="height:36px;padding:0 12px;font-size:12px;width:auto;" data-add-ex="${ex.id}">+ ${ex.name}</button>
       `).join("")}
     </div>
 
-    <button class="btn btn-accent" style="width:100%;" data-nav="#/player/${workout.id}">Ir para o player ▶</button>
+    <button class="btn btn-accent" style="width:100%;" id="saveBuilderBtn">Guardar treino</button>
 
-    <div style="margin-top:20px;">
+    ${alreadySaved ? `
+    <div style="margin-top:10px;">
       <button class="btn btn-danger" style="width:100%;" data-delete-workout="${workout.id}">Apagar treino</button>
-    </div>
+    </div>` : ""}
   `;
 }
 
@@ -813,6 +832,22 @@ function viewAdmin() {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Fundo da app</p>
+      <div style="display:flex;gap:10px;">
+        ${[
+          { id: "glow", label: "Brilho", preview: "radial-gradient(ellipse at 20% 0%, rgba(201,255,61,0.35), transparent 60%), radial-gradient(ellipse at 100% 40%, rgba(255,255,255,0.2), transparent 55%), #000" },
+          { id: "diagonal", label: "Diagonal", preview: "linear-gradient(135deg, #2a2c22 0%, #000 45%, #10131c 100%)" },
+          { id: "grain", label: "Grão", preview: "radial-gradient(rgba(255,255,255,0.35) 1px, transparent 1px) 0 0/8px 8px, #000" },
+        ].map((bg) => `
+          <button data-bg="${bg.id}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;padding:0;">
+            <span style="display:block;width:100%;aspect-ratio:1;border-radius:12px;background:${bg.preview};border:2px solid ${(state.settings.backgroundStyle || "glow") === bg.id ? "var(--accent)" : "var(--border)"};"></span>
+            <span style="font-size:11px;color:${(state.settings.backgroundStyle || "glow") === bg.id ? "#fff" : "var(--text-faint)"};">${bg.label}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
       <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Plano semanal</p>
       <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">
         Define que letra de treino corresponde a cada dia da semana.
@@ -840,14 +875,53 @@ function viewAdmin() {
       </p>
       <button class="btn btn-danger" style="width:100%;" id="resetDataBtn">Repor exercícios, treinos e plano</button>
     </div>
+  `;
+}
+
+/* ---------- Manage (Gerir treinos e exercícios) ---------- */
+
+function viewManage() {
+  const workoutsByCategory = {};
+  state.workouts.forEach((w) => {
+    workoutsByCategory[w.category] = workoutsByCategory[w.category] || [];
+    workoutsByCategory[w.category].push(w);
+  });
+  const categoryOrder = ["strength", "yoga", "mobility", "custom"];
+
+  return `
+    ${topbarHtml("Gerir", `<a href="#/">${icon("close")}</a>`)}
+
+    <p class="section-label" style="margin-top:0;">Treinos</p>
+    ${categoryOrder.map((cat) => {
+      const list = workoutsByCategory[cat] || [];
+      return `
+      <div class="card" style="padding:0;margin-bottom:12px;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:var(--text-faint);font-size:11px;letter-spacing:1px;text-transform:uppercase;">${CATEGORY_LABELS[cat]}</span>
+          <button data-nav="#/builder/${cat}" style="background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;">+ Novo</button>
+        </div>
+        ${list.length ? list.map((w) => `
+          <div class="row" style="padding:0 16px;">
+            <div>
+              <span style="font-size:14px;">${w.name}</span>
+              ${w.day ? `<span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.day}</span>` : ""}
+              <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.exercises.length} ex.</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn" style="height:32px;padding:0 10px;font-size:12px;width:auto;" data-nav="#/builder/${w.id}">Editar</button>
+              <button class="btn btn-danger" style="height:32px;padding:0 10px;font-size:12px;width:auto;" data-delete-wo="${w.id}">Apagar</button>
+            </div>
+          </div>`).join("") : `<p style="color:var(--text-faint);font-size:12px;padding:14px 16px;margin:0;">Sem treinos ainda.</p>`}
+      </div>`;
+    }).join("")}
 
     <p class="section-label">Exercícios</p>
     <div class="card" style="padding:0;margin-bottom:16px;">
       ${state.exercises.map((ex) => `
         <div class="row" style="padding:0 16px;">
           <div>
-            <p style="font-size:14px;">${ex.name}</p>
-            <p style="font-size:11px;color:var(--text-faint);">${ex.primaryMuscle}</p>
+            <p style="font-size:14px;margin:0;">${ex.name}</p>
+            <p style="font-size:11px;color:var(--text-faint);margin:0;">${ex.primaryMuscle}</p>
           </div>
           <div style="display:flex;gap:6px;">
             <button class="btn" style="height:32px;padding:0 10px;font-size:12px;width:auto;" data-edit-ex="${ex.id}">Editar</button>
@@ -962,29 +1036,20 @@ function attachHandlers(hash) {
     el.addEventListener("click", () => navigate(`#/category/${el.getAttribute("data-cat")}`))
   );
 
-  // Builder
+  // Builder — tudo mexe no rascunho local (builderDraft), só grava ao tocar em "Guardar treino"
   app.querySelectorAll("[data-add-ex]").forEach((el) =>
     el.addEventListener("click", () => {
-      const workoutId = el.getAttribute("data-workout");
       const exerciseId = el.getAttribute("data-add-ex");
-      const workouts = state.workouts.map((w) =>
-        w.id === workoutId ? { ...w, exercises: [...w.exercises, { exerciseId, restSeconds: 60, sets: 3 }] } : w
-      );
-      state.workouts = workouts;
+      builderDraft.exercises = [...builderDraft.exercises, { exerciseId, restSeconds: 60, sets: 3 }];
       render();
     })
   );
   app.querySelectorAll("[data-remove]").forEach((el) =>
     el.addEventListener("click", () => {
       const idx = Number(el.getAttribute("data-remove"));
-      const workoutId = location.hash.split("/")[2];
-      const workouts = state.workouts.map((w) => {
-        if (w.id !== workoutId) return w;
-        const exercises = [...w.exercises];
-        exercises.splice(idx, 1);
-        return { ...w, exercises };
-      });
-      state.workouts = workouts;
+      const exercises = [...builderDraft.exercises];
+      exercises.splice(idx, 1);
+      builderDraft.exercises = exercises;
       render();
     })
   );
@@ -992,47 +1057,30 @@ function attachHandlers(hash) {
     el.addEventListener("click", () => {
       const [idxStr, dirStr] = el.getAttribute("data-move").split(":");
       const idx = Number(idxStr), dir = Number(dirStr);
-      const workoutId = location.hash.split("/")[2];
-      const workouts = state.workouts.map((w) => {
-        if (w.id !== workoutId) return w;
-        const exercises = [...w.exercises];
-        const newIdx = idx + dir;
-        if (newIdx < 0 || newIdx >= exercises.length) return w;
-        [exercises[idx], exercises[newIdx]] = [exercises[newIdx], exercises[idx]];
-        return { ...w, exercises };
-      });
-      state.workouts = workouts;
+      const exercises = [...builderDraft.exercises];
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= exercises.length) return;
+      [exercises[idx], exercises[newIdx]] = [exercises[newIdx], exercises[idx]];
+      builderDraft.exercises = exercises;
       render();
     })
   );
   const wNameInput = app.querySelector("#w-name");
   if (wNameInput) wNameInput.addEventListener("input", () => {
-    const id = wNameInput.getAttribute("data-workout-id");
-    state.workouts = state.workouts.map((w) => (w.id === id ? { ...w, name: wNameInput.value } : w));
-    clearTimeout(wNameInput._toastTimer);
-    wNameInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
+    builderDraft.name = wNameInput.value;
   });
   const wDayInput = app.querySelector("#w-day");
   if (wDayInput) wDayInput.addEventListener("input", () => {
-    const id = wDayInput.getAttribute("data-workout-id");
-    state.workouts = state.workouts.map((w) => (w.id === id ? { ...w, day: wDayInput.value } : w));
-    clearTimeout(wDayInput._toastTimer);
-    wDayInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
+    builderDraft.day = wDayInput.value;
   });
 
   app.querySelectorAll("[data-sets]").forEach((el) =>
     el.addEventListener("click", () => {
       const [idxStr, deltaStr] = el.getAttribute("data-sets").split(":");
       const idx = Number(idxStr), delta = Number(deltaStr);
-      const workoutId = location.hash.split("/")[2];
-      const workouts = state.workouts.map((w) => {
-        if (w.id !== workoutId) return w;
-        const exercises = w.exercises.map((we, i) =>
-          i === idx ? { ...we, sets: Math.max(1, (we.sets || 1) + delta) } : we
-        );
-        return { ...w, exercises };
-      });
-      state.workouts = workouts;
+      builderDraft.exercises = builderDraft.exercises.map((we, i) =>
+        i === idx ? { ...we, sets: Math.max(1, (we.sets || 1) + delta) } : we
+      );
       render();
     })
   );
@@ -1040,23 +1088,38 @@ function attachHandlers(hash) {
     el.addEventListener("click", () => {
       const [idxStr, deltaStr] = el.getAttribute("data-rest").split(":");
       const idx = Number(idxStr), delta = Number(deltaStr);
-      const workoutId = location.hash.split("/")[2];
-      const workouts = state.workouts.map((w) => {
-        if (w.id !== workoutId) return w;
-        const exercises = w.exercises.map((we, i) =>
-          i === idx ? { ...we, restSeconds: Math.max(0, we.restSeconds + delta) } : we
-        );
-        return { ...w, exercises };
-      });
-      state.workouts = workouts;
+      builderDraft.exercises = builderDraft.exercises.map((we, i) =>
+        i === idx ? { ...we, restSeconds: Math.max(0, we.restSeconds + delta) } : we
+      );
       render();
     })
   );
+  const saveBuilderBtn = app.querySelector("#saveBuilderBtn");
+  if (saveBuilderBtn) saveBuilderBtn.addEventListener("click", () => {
+    const { _sourceKey, ...clean } = builderDraft;
+    const exists = state.workouts.some((w) => w.id === clean.id);
+    state.workouts = exists
+      ? state.workouts.map((w) => (w.id === clean.id ? clean : w))
+      : [...state.workouts, clean];
+    showToast("Treino guardado ✓");
+    navigate("#/manage");
+  });
+  app.querySelectorAll("[data-delete-wo]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-delete-wo");
+      if (!confirm("Apagar este treino? Não é possível desfazer.")) return;
+      state.workouts = state.workouts.filter((w) => w.id !== id);
+      render();
+    })
+  );
+
   const delWorkoutBtn = app.querySelector("[data-delete-workout]");
   if (delWorkoutBtn) delWorkoutBtn.addEventListener("click", () => {
     const id = delWorkoutBtn.getAttribute("data-delete-workout");
+    if (!confirm("Apagar este treino? Não é possível desfazer.")) return;
     state.workouts = state.workouts.filter((w) => w.id !== id);
-    navigate("#/");
+    builderDraft = null;
+    navigate("#/manage");
   });
 
   // Player
@@ -1078,6 +1141,15 @@ function attachHandlers(hash) {
     clearTimeout(personNameInput._toastTimer);
     personNameInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
   });
+
+  app.querySelectorAll("[data-bg]").forEach((el) =>
+    el.addEventListener("click", () => {
+      state.settings = { ...state.settings, backgroundStyle: el.getAttribute("data-bg") };
+      applyTheme();
+      render();
+      showToast("Guardado ✓");
+    })
+  );
 
   app.querySelectorAll("[data-color]").forEach((el) =>
     el.addEventListener("click", () => {
