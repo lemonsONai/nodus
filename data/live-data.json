@@ -44,8 +44,8 @@
   "workouts": [
     {
       "id": "wo-push",
-      "name": "Push",
-      "day": "A",
+      "name": "Upper Body Strength",
+      "day": "",
       "category": "strength",
       "phases": [
         {
@@ -54,12 +54,14 @@
           "sets": 4,
           "restSeconds": 60,
           "pool": [
-            "ex-001"
+            "ex-001",
+            "yg-005",
+            "ex-80l49k9"
           ]
         },
         {
           "id": "ph-push-pull",
-          "label": "Pull",
+          "label": "Pull Strength",
           "sets": 3,
           "restSeconds": 60,
           "pool": [
@@ -69,12 +71,19 @@
         },
         {
           "id": "ph-push-stability",
-          "label": "Stability",
+          "label": "Stability & Control",
           "sets": 3,
           "restSeconds": 45,
           "pool": [
             "ex-004"
           ]
+        },
+        {
+          "id": "ph-4jqqm14",
+          "label": "Carries",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
         }
       ]
     },
