@@ -115,21 +115,27 @@
           "label": "Pull Strength",
           "sets": 4,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-006"
+          ]
         },
         {
           "id": "ph-push-stability",
           "label": "Stability & Control",
           "sets": 4,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-006"
+          ]
         },
         {
           "id": "ph-g1pf3o2",
           "label": "Carries",
           "sets": 3,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-006"
+          ]
         }
       ]
     },
