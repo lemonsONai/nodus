@@ -2,15 +2,18 @@
   "exercises": [
     {
       "id": "ex-006",
-      "name": "Elevação pélvica (Hip thrust)",
+      "name": "Barbell Strict Press",
       "category": "strength",
-      "primaryMuscle": "Glúteos",
+      "primaryMuscle": "Shoulders",
       "secondaryMuscles": [
-        "Isquiotibiais"
+        "Triceps",
+        "Upper Chest",
+        "Core",
+        "Upper Back"
       ],
       "difficulty": "beginner",
-      "notes": "Empurra através dos calcanhares, aperta os glúteos no topo.",
-      "gif": "assets/exercises/hip-thrust.gif",
+      "notes": "Keep your core tight and press the bar vertically without using leg drive.",
+      "gif": "assets/exercises/Barbell-Strict-Press.png",
       "thumbnail": "assets/thumbnails/hip-thrust.webp"
     }
   ],
