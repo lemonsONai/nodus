@@ -168,6 +168,23 @@
       "notes": "Press upward with control while keeping your chest lifted throughout the movement.",
       "gif": "assets/exercises/Incline-Dumbbell-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-1784761463680",
+      "name": "Single Arm Row",
+      "category": "strength",
+      "primaryMuscle": "Back (Lats)",
+      "secondaryMuscles": [
+        "Rhomboids",
+        "Traps",
+        "Biceps",
+        "Rear Delts",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Pull the weight toward your hip while keeping your back flat and torso stable.",
+      "gif": "assets/exercises/Single-Arm-Row.png",
+      "thumbnail": ""
     }
   ],
   "workouts": [
