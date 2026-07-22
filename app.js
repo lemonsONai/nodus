@@ -234,6 +234,19 @@ function navigate(hash) {
 }
 
 window.addEventListener("hashchange", render);
+
+document.addEventListener("click", (evt) => {
+  if (!builderDirty || !location.hash.startsWith("#/builder")) return;
+  const link = evt.target.closest('a[href^="#"], [data-nav], [data-edit], [data-cat]');
+  if (!link || link.id === "builderCloseBtn") return;
+  const ok = confirm("Tens alterações por guardar neste treino. Sair sem guardar e perder essas alterações?");
+  if (!ok) {
+    evt.preventDefault();
+    evt.stopImmediatePropagation();
+  } else {
+    builderDirty = false;
+  }
+}, true);
 window.addEventListener("DOMContentLoaded", () => {
   applyTheme();
   render();
@@ -637,6 +650,7 @@ function viewCategoryList(cat) {
 /* ---------- Builder ---------- */
 
 let builderDraft = null;
+let builderDirty = false;
 
 function viewBuilder(workoutIdOrCategory, presetDay) {
   const sourceKey = `${workoutIdOrCategory}:${presetDay || ""}`;
@@ -656,6 +670,7 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
       };
     }
     builderDraft._sourceKey = sourceKey;
+    builderDirty = false;
   }
 
   const workout = builderDraft;
@@ -712,10 +727,10 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
   const alreadySaved = state.workouts.some((w) => w.id === workout.id);
 
   return `
-    ${topbarHtml("Editar dia", `<a href="#/manage">${icon("close")}</a>`)}
+    ${topbarHtml("Editar dia", `<a href="#/manage" id="builderCloseBtn">${icon("close")}</a>`)}
 
     <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 6px;">${alreadySaved ? `A EDITAR "${existing.name}"${existing.day ? " · DIA " + existing.day.toUpperCase() : ""} (${existing.phases.length} fases guardadas)` : "NOVO TREINO — AINDA NÃO GUARDADO"}</p>
-    <p style="color:var(--text-faint);font-size:11px;margin:0 0 16px;">As alterações só ficam ao tocares em "Guardar treino"</p>
+    ${builderDirty ? `<div style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.4);border-radius:12px;padding:10px 14px;margin-bottom:16px;"><p style="color:#ff8a8a;font-size:12px;font-weight:600;margin:0;">⚠ Tens alterações por guardar — toca em "Guardar treino" no fundo antes de saíres.</p></div>` : `<p style="color:var(--text-faint);font-size:11px;margin:0 0 16px;">Tudo guardado.</p>`}
 
     <label>Nome do treino</label>
     <input type="text" id="w-name" value="${workout.name}">
@@ -1117,6 +1132,7 @@ function attachHandlers(hash) {
       if (newIdx < 0 || newIdx >= phases.length) return;
       [phases[idx], phases[newIdx]] = [phases[newIdx], phases[idx]];
       builderDraft.phases = phases;
+      builderDirty = true;
       render();
     })
   );
@@ -1126,6 +1142,7 @@ function attachHandlers(hash) {
       const phases = [...builderDraft.phases];
       phases.splice(idx, 1);
       builderDraft.phases = phases;
+      builderDirty = true;
       render();
     })
   );
@@ -1136,6 +1153,7 @@ function attachHandlers(hash) {
       builderDraft.phases = builderDraft.phases.map((p, i) =>
         i === idx ? { ...p, sets: Math.max(1, (p.sets || 1) + delta) } : p
       );
+      builderDirty = true;
       render();
     })
   );
@@ -1146,6 +1164,7 @@ function attachHandlers(hash) {
       builderDraft.phases = builderDraft.phases.map((p, i) =>
         i === idx ? { ...p, restSeconds: Math.max(0, (p.restSeconds || 60) + delta) } : p
       );
+      builderDirty = true;
       render();
     })
   );
@@ -1153,6 +1172,7 @@ function attachHandlers(hash) {
     el.addEventListener("input", () => {
       const idx = Number(el.getAttribute("data-phase-label"));
       builderDraft.phases[idx].label = el.value;
+      builderDirty = true;
     })
   );
   app.querySelectorAll("[data-pool-add]").forEach((el) =>
@@ -1162,7 +1182,9 @@ function attachHandlers(hash) {
       builderDraft.phases = builderDraft.phases.map((p, i) =>
         i === idx ? { ...p, pool: [...(p.pool || []), exId] } : p
       );
+      builderDirty = true;
       render();
+      showToast("Adicionado ao rascunho — não te esqueças de Guardar");
     })
   );
   app.querySelectorAll("[data-pool-remove]").forEach((el) =>
@@ -1172,22 +1194,37 @@ function attachHandlers(hash) {
       builderDraft.phases = builderDraft.phases.map((p, i) =>
         i === idx ? { ...p, pool: (p.pool || []).filter((id) => id !== exId) } : p
       );
+      builderDirty = true;
       render();
     })
   );
   const addPhaseBtn = app.querySelector("#addPhaseBtn");
   if (addPhaseBtn) addPhaseBtn.addEventListener("click", () => {
     builderDraft.phases = [...builderDraft.phases, { id: uid("ph"), label: "Nova fase", sets: 3, restSeconds: 60, pool: [] }];
+    builderDirty = true;
     render();
   });
 
   const wNameInput = app.querySelector("#w-name");
   if (wNameInput) wNameInput.addEventListener("input", () => {
     builderDraft.name = wNameInput.value;
+    builderDirty = true;
   });
   const wDayInput = app.querySelector("#w-day");
   if (wDayInput) wDayInput.addEventListener("input", () => {
     builderDraft.day = wDayInput.value;
+    builderDirty = true;
+  });
+
+  const builderCloseBtn = app.querySelector("#builderCloseBtn");
+  if (builderCloseBtn) builderCloseBtn.addEventListener("click", (evt) => {
+    if (builderDirty) {
+      evt.preventDefault();
+      if (confirm("Tens alterações por guardar neste treino. Sair sem guardar e perder essas alterações?")) {
+        builderDirty = false;
+        navigate("#/manage");
+      }
+    }
   });
 
   const saveBuilderBtn = app.querySelector("#saveBuilderBtn");
@@ -1197,6 +1234,7 @@ function attachHandlers(hash) {
     state.workouts = exists
       ? state.workouts.map((w) => (w.id === clean.id ? clean : w))
       : [...state.workouts, clean];
+    builderDirty = false;
     showToast("Treino guardado ✓");
     navigate("#/manage");
   });
