@@ -37,7 +37,7 @@
   "settings": {
     "theme": "dark",
     "defaultRestSeconds": 60,
-    "accentColor": "#FF4ADE",
+    "accentColor": "#C9FF3D",
     "personName": "",
     "backgroundStyle": "glow"
   },
