@@ -140,6 +140,20 @@
       "notes": "Press both dumbbells evenly while keeping your feet firmly on the floor.",
       "gif": "assets/exercises/Dumbbell-Bench-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-kr261i7",
+      "name": "Close-Grip Barbell Press",
+      "category": "strength",
+      "primaryMuscle": "Triceps",
+      "secondaryMuscles": [
+        "Chest",
+        "Shoulders"
+      ],
+      "difficulty": "beginner",
+      "notes": "Keep your elbows close to your body and press without flaring them out.",
+      "gif": "assets/exercises/Close-Grip-Barbell-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
