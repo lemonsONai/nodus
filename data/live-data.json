@@ -218,8 +218,7 @@
           "sets": 4,
           "restSeconds": 60,
           "pool": [
-            "ex-002",
-            "ex-009"
+            "ex-001"
           ]
         },
         {
