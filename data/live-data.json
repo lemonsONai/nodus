@@ -296,36 +296,28 @@
           "label": "Secondary Press",
           "sets": 4,
           "restSeconds": 60,
-          "pool": [
-            "ex-kr261i7"
-          ]
+          "pool": []
         },
         {
           "id": "ph-whaihp9",
           "label": "Stability",
           "sets": 4,
           "restSeconds": 60,
-          "pool": [
-            "ex-kr261i7"
-          ]
+          "pool": []
         },
         {
           "id": "ph-8ersa02",
           "label": "Power",
           "sets": 4,
           "restSeconds": 60,
-          "pool": [
-            "ex-kr261i7"
-          ]
+          "pool": []
         },
         {
           "id": "ph-v9d6nnp",
           "label": "Mobility",
           "sets": 4,
           "restSeconds": 60,
-          "pool": [
-            "ex-kr261i7"
-          ]
+          "pool": []
         }
       ]
     }
