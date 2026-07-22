@@ -298,8 +298,8 @@ export function Player() {
         </div>
 
         <div
-          className="w-full rounded-[28px] overflow-hidden mx-auto mb-5 border border-white/10"
-          style={{ height: "min(480px, 50vh)", aspectRatio: "1402/1122", background: "linear-gradient(180deg,#1a1a18,#141412)" }}
+          className="rounded-[28px] overflow-hidden mx-auto mb-5 border border-white/10"
+          style={{ height: "min(480px, 50vh)", width: "auto", maxWidth: "100%", aspectRatio: "1402/1122", background: "linear-gradient(180deg,#1a1a18,#141412)" }}
         >
           {ex.gif ? (
             isVideo(ex.gif) ? (
