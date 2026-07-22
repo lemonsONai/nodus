@@ -120,6 +120,20 @@ function applyTheme() {
   document.documentElement.style.setProperty("--accent", state.settings.accentColor);
 }
 
+function showToast(msg) {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0a0a09;font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;z-index:50;opacity:0;transition:opacity 0.2s;pointer-events:none;";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = "1";
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(() => { el.style.opacity = "0"; }, 1200);
+}
+
 function topbarHtml(label, right) {
   return `<div class="topbar">
     <div style="display:flex;align-items:center;gap:8px;">
@@ -815,6 +829,18 @@ function viewAdmin() {
       <button class="btn" style="width:100%;" id="exportBtn">Exportar dados atualizados</button>
     </div>
 
+    <div class="card" style="margin-bottom:20px;">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Repor dados de origem</p>
+      <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">
+        Este dispositivo guarda as tuas edições e deixa de receber atualizações aos
+        exercícios/treinos de exemplo que eu envie, mesmo quando substituis os
+        ficheiros. Usa isto se quiseres voltar a ver os dados mais recentes que
+        vieram com a app (isto <strong>apaga as tuas edições neste dispositivo</strong>
+        — o histórico de sessões não é afetado).
+      </p>
+      <button class="btn btn-danger" style="width:100%;" id="resetDataBtn">Repor exercícios, treinos e plano</button>
+    </div>
+
     <p class="section-label">Exercícios</p>
     <div class="card" style="padding:0;margin-bottom:16px;">
       ${state.exercises.map((ex) => `
@@ -980,14 +1006,18 @@ function attachHandlers(hash) {
     })
   );
   const wNameInput = app.querySelector("#w-name");
-  if (wNameInput) wNameInput.addEventListener("change", () => {
+  if (wNameInput) wNameInput.addEventListener("input", () => {
     const id = wNameInput.getAttribute("data-workout-id");
     state.workouts = state.workouts.map((w) => (w.id === id ? { ...w, name: wNameInput.value } : w));
+    clearTimeout(wNameInput._toastTimer);
+    wNameInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
   });
   const wDayInput = app.querySelector("#w-day");
-  if (wDayInput) wDayInput.addEventListener("change", () => {
+  if (wDayInput) wDayInput.addEventListener("input", () => {
     const id = wDayInput.getAttribute("data-workout-id");
     state.workouts = state.workouts.map((w) => (w.id === id ? { ...w, day: wDayInput.value } : w));
+    clearTimeout(wDayInput._toastTimer);
+    wDayInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
   });
 
   app.querySelectorAll("[data-sets]").forEach((el) =>
@@ -1043,14 +1073,17 @@ function attachHandlers(hash) {
 
   // Admin — color
   const personNameInput = app.querySelector("#personNameInput");
-  if (personNameInput) personNameInput.addEventListener("change", () => {
+  if (personNameInput) personNameInput.addEventListener("input", () => {
     state.settings = { ...state.settings, personName: personNameInput.value.trim() };
+    clearTimeout(personNameInput._toastTimer);
+    personNameInput._toastTimer = setTimeout(() => showToast("Guardado ✓"), 500);
   });
 
   app.querySelectorAll("[data-color]").forEach((el) =>
     el.addEventListener("click", () => {
       state.settings = { ...state.settings, accentColor: el.getAttribute("data-color") };
       render();
+      showToast("Guardado ✓");
     })
   );
   const colorInput = app.querySelector("#colorInput");
@@ -1058,18 +1091,30 @@ function attachHandlers(hash) {
     state.settings = { ...state.settings, accentColor: e.target.value };
     applyTheme();
   });
-  colorInput && colorInput.addEventListener("change", () => render());
+  colorInput && colorInput.addEventListener("change", () => { render(); showToast("Guardado ✓"); });
 
   app.querySelectorAll("[data-dow]").forEach((el) =>
     el.addEventListener("change", () => {
       const dow = el.getAttribute("data-dow");
       const schedule = { ...state.plan.schedule, [dow]: el.value };
       state.plan = { ...state.plan, schedule };
+      showToast("Guardado ✓");
     })
   );
 
   const exportBtn = app.querySelector("#exportBtn");
   if (exportBtn) exportBtn.addEventListener("click", exportData);
+
+  const resetDataBtn = app.querySelector("#resetDataBtn");
+  if (resetDataBtn) resetDataBtn.addEventListener("click", () => {
+    const ok = confirm("Isto vai substituir os teus exercícios, treinos e plano semanal neste dispositivo pelos dados mais recentes da app. As tuas edições atuais nestas áreas perdem-se. O histórico de sessões não é afetado. Continuar?");
+    if (!ok) return;
+    delete overrides.exercises;
+    delete overrides.workouts;
+    delete overrides.plan;
+    saveOverrides(overrides);
+    location.reload();
+  });
 
   // Admin — exercises CRUD
   const newExBtn = app.querySelector("#newExBtn");
@@ -1114,5 +1159,6 @@ function attachFormHandlers(existing) {
       ? state.exercises.map((e) => (e.id === id ? updated : e))
       : [...state.exercises, updated];
     render();
+    showToast("Guardado ✓");
   });
 }

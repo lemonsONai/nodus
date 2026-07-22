@@ -112,6 +112,20 @@ dias A-E passa a 3 colunas. Não precisas de configurar nada — o mesmo
 `index.html` adapta-se sozinho ao reduzires/aumentares a janela ou
 rodares o tablet.
 
+## A app "não atualiza" mesmo depois de trocares os ficheiros?
+
+Isto acontece porque a app dá sempre prioridade às tuas próprias edições
+sobre os ficheiros novos que colocares em `data/` — para nunca apagar o
+teu trabalho sem querer. Se sentires que estás preso numa versão antiga
+dos exercícios/treinos/plano (por exemplo, depois de muitos testes),
+vai a **Admin → "Repor dados de origem"**. Isto volta a mostrar os dados
+mais recentes vindos com a app, mas apaga as tuas edições nessas áreas —
+o histórico de sessões nunca é afetado por este botão.
+
+Sempre que editares algo (nome do treino, exercício, cor, etc.), aparece
+uma pequena confirmação "Guardado ✓" no fundo do ecrã — não há botão de
+"Guardar" explícito porque tudo grava automaticamente e de imediato.
+
 ## Adicionar um exercício novo
 
 Duas formas:
