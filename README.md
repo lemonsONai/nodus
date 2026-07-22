@@ -175,6 +175,36 @@ Treinos antigos (da versão anterior, com lista simples de exercícios)
 são convertidos automaticamente para este formato na primeira vez que
 abrires esta versão — não precisas de repor nada.
 
+## Sincronização em tempo real via GitHub (opcional)
+
+Se hospedares esta app no GitHub Pages, podes ligar a sincronização de
+dados diretamente ao repositório — todos os dispositivos com isto
+configurado veem sempre a mesma versão, sem exportar/importar nada.
+
+**Como ativar:**
+1. Cria um token de acesso pessoal (fine-grained) em
+   `github.com/settings/tokens?type=beta`, com acesso só a este
+   repositório e permissão "Contents: Read and write".
+2. Em **Admin → "Sincronização GitHub"**, preenche o dono do repositório,
+   nome do repositório, ramo (normalmente `main`) e o token.
+3. Toca em **"Guardar e sincronizar"**.
+
+Repete isto em cada dispositivo que quiseres ligado (cada um guarda o
+seu próprio token, localmente, nunca partilhado nos dados sincronizados).
+
+**Como funciona:**
+- Os dados (exercícios, treinos, plano, histórico) ficam num único
+  ficheiro `data/live-data.json` no repositório.
+- Cada gravação cria um commit automático nesse ficheiro — normal e
+  esperado, faz parte de como isto funciona.
+- Sem internet, ou sem isto configurado, a app continua a funcionar
+  100% local (como antes), e sincroniza assim que voltar a haver ligação.
+- Se dois dispositivos gravarem em simultâneo, a app tenta automaticamente
+  uma segunda vez antes de desistir — não deverias notar nada na prática
+  com só duas pessoas a usar.
+- Podes desligar isto a qualquer momento em Admin, sem perderes os dados
+  (ficam guardados localmente também).
+
 ## Adicionar um exercício novo
 
 Duas formas:

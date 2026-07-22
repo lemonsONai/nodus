@@ -12,7 +12,24 @@
     aos outros dispositivos.
 */
 
+/*
+  Nodus — app vanilla JS, sem build, sem npm.
+  Abre-se diretamente pelo index.html em qualquer browser (PC, tablet, telemóvel).
+
+  Persistência:
+  - Os ficheiros em /data/*.js são a biblioteca de origem/reserva (usada se
+    não houver sincronização configurada, ou se não houver internet).
+  - Se configurares "Sincronização GitHub" em Admin, a app passa a ler e
+    escrever um único ficheiro (data/live-data.json) diretamente no teu
+    repositório — todos os dispositivos com o token configurado veem
+    sempre a mesma versão, sem export/import manual.
+  - Sem essa configuração, continua a funcionar 100% local (localStorage),
+    como antes.
+*/
+
 const STORAGE_KEY = "nodus:overrides";
+const GITHUB_CONFIG_KEY = "nodus:github-config";
+const LIVE_DATA_PATH = "data/live-data.json";
 
 function loadOverrides() {
   try {
@@ -24,9 +41,139 @@ function loadOverrides() {
 
 function saveOverrides(overrides) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+  scheduleGithubPush();
 }
 
 const overrides = loadOverrides();
+
+/* ---------- Sincronização GitHub (opcional) ---------- */
+
+function loadGithubConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(GITHUB_CONFIG_KEY)) || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveGithubConfig(cfg) {
+  localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(cfg));
+}
+
+let githubConfig = loadGithubConfig();
+let githubSha = null;
+let githubSyncTimer = null;
+let githubSyncStatus = githubConfig ? "idle" : "off"; // off | idle | syncing | error | ok
+
+function utf8ToBase64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function base64ToUtf8(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
+async function githubFetchLiveData() {
+  if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.token) return false;
+  githubSyncStatus = "syncing";
+  try {
+    const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${LIVE_DATA_PATH}?ref=${githubConfig.branch || "main"}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `token ${githubConfig.token}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+    if (res.status === 404) {
+      // ainda não existe no repositório — cria a partir do que houver localmente
+      githubSha = null;
+      githubSyncStatus = "idle";
+      return false;
+    }
+    if (!res.ok) throw new Error("GitHub fetch falhou: " + res.status);
+    const json = await res.json();
+    githubSha = json.sha;
+    const content = JSON.parse(base64ToUtf8(json.content));
+    Object.assign(overrides, content);
+    saveOverridesLocalOnly();
+    githubSyncStatus = "ok";
+    return true;
+  } catch (e) {
+    console.error(e);
+    githubSyncStatus = "error";
+    return false;
+  }
+}
+
+function saveOverridesLocalOnly() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
+}
+
+function scheduleGithubPush() {
+  if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.token) return;
+  clearTimeout(githubSyncTimer);
+  githubSyncTimer = setTimeout(githubPushLiveData, 1500);
+}
+
+async function githubPushLiveData(retry) {
+  if (!githubConfig || !githubConfig.owner || !githubConfig.repo || !githubConfig.token) return;
+  githubSyncStatus = "syncing";
+  try {
+    const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${LIVE_DATA_PATH}`;
+    const body = {
+      message: "Nodus: atualizar dados",
+      content: utf8ToBase64(JSON.stringify(overrides, null, 2)),
+      branch: githubConfig.branch || "main",
+    };
+    if (githubSha) body.sha = githubSha;
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${githubConfig.token}`,
+        Accept: "application/vnd.github+json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 409 && !retry) {
+      // conflito — outro dispositivo escreveu entretanto; busca o sha novo e tenta uma vez mais
+      await githubFetchLiveDataSilently();
+      return githubPushLiveData(true);
+    }
+    if (!res.ok) throw new Error("GitHub push falhou: " + res.status);
+    const json = await res.json();
+    githubSha = json.content.sha;
+    githubSyncStatus = "ok";
+  } catch (e) {
+    console.error(e);
+    githubSyncStatus = "error";
+  }
+}
+
+async function githubFetchLiveDataSilently() {
+  try {
+    const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${LIVE_DATA_PATH}?ref=${githubConfig.branch || "main"}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `token ${githubConfig.token}`, Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return;
+    const json = await res.json();
+    githubSha = json.sha;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function githubTestConnection(cfg) {
+  try {
+    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
+    const res = await fetch(url, {
+      headers: { Authorization: `token ${cfg.token}`, Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return { ok: false, message: `Repositório não encontrado ou sem acesso (${res.status})` };
+    return { ok: true, message: "Ligado com sucesso." };
+  } catch (e) {
+    return { ok: false, message: "Falha de rede." };
+  }
+}
 
 const state = {
   get exercises() {
@@ -250,6 +397,14 @@ document.addEventListener("click", (evt) => {
 window.addEventListener("DOMContentLoaded", () => {
   applyTheme();
   render();
+  if (githubConfig) {
+    githubFetchLiveData().then((changed) => {
+      if (changed) {
+        applyTheme();
+        render();
+      }
+    });
+  }
 });
 
 function render() {
@@ -942,10 +1097,36 @@ function viewAdmin() {
     </div>
 
     <div class="card" style="margin-bottom:20px;">
-      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Sincronização</p>
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Sincronização GitHub (em tempo real)</p>
       <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">
-        As alterações feitas aqui ficam guardadas neste dispositivo. Para propagares
-        para os outros (via OneDrive), exporta os ficheiros e substitui-os na pasta /data/.
+        Configura isto neste dispositivo para os dados ficarem sempre
+        sincronizados com o repositório — sem exportar/importar nada.
+        Precisas de um token de acesso pessoal (Contents: Read and write)
+        gerado na tua conta GitHub.
+      </p>
+      <label>Dono do repositório (ex: joao123)</label>
+      <input type="text" id="ghOwner" value="${githubConfig ? githubConfig.owner : ""}" placeholder="o teu utilizador do GitHub">
+      <label>Nome do repositório</label>
+      <input type="text" id="ghRepo" value="${githubConfig ? githubConfig.repo : ""}" placeholder="ex: nodus">
+      <label>Ramo (branch)</label>
+      <input type="text" id="ghBranch" value="${githubConfig ? githubConfig.branch || "main" : "main"}" placeholder="main">
+      <label>Token de acesso pessoal</label>
+      <input type="password" id="ghToken" value="${githubConfig ? githubConfig.token : ""}" placeholder="github_pat_...">
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button class="btn" style="flex:1;" id="ghTestBtn">Testar ligação</button>
+        <button class="btn btn-accent" style="flex:1;" id="ghSaveBtn">Guardar e sincronizar</button>
+      </div>
+      <p id="ghStatus" style="font-size:12px;color:var(--text-dim);margin:10px 0 0;">
+        ${githubConfig ? `Estado: ${githubSyncStatus === "ok" ? "✓ sincronizado" : githubSyncStatus === "error" ? "⚠ erro na última sincronização" : githubSyncStatus === "syncing" ? "a sincronizar…" : "configurado"}` : "Ainda não configurado — a app está a usar armazenamento só neste dispositivo."}
+      </p>
+      ${githubConfig ? `<button class="btn btn-danger" style="width:100%;margin-top:10px;" id="ghDisconnectBtn">Desligar sincronização neste dispositivo</button>` : ""}
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Sincronização por ficheiros (alternativa)</p>
+      <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">
+        Se não quiseres usar o GitHub em tempo real, continua a poder exportar
+        e substituir os ficheiros manualmente (OneDrive, Drive, etc.).
       </p>
       <button class="btn" style="width:100%;" id="exportBtn">Exportar dados atualizados</button>
     </div>
@@ -1320,6 +1501,55 @@ function attachHandlers(hash) {
     delete overrides.plan;
     saveOverrides(overrides);
     location.reload();
+  });
+
+  const ghTestBtn = app.querySelector("#ghTestBtn");
+  if (ghTestBtn) ghTestBtn.addEventListener("click", async () => {
+    const cfg = {
+      owner: app.querySelector("#ghOwner").value.trim(),
+      repo: app.querySelector("#ghRepo").value.trim(),
+      branch: app.querySelector("#ghBranch").value.trim() || "main",
+      token: app.querySelector("#ghToken").value.trim(),
+    };
+    const statusEl = app.querySelector("#ghStatus");
+    statusEl.textContent = "A testar…";
+    const result = await githubTestConnection(cfg);
+    statusEl.textContent = (result.ok ? "✓ " : "⚠ ") + result.message;
+  });
+
+  const ghSaveBtn = app.querySelector("#ghSaveBtn");
+  if (ghSaveBtn) ghSaveBtn.addEventListener("click", async () => {
+    const cfg = {
+      owner: app.querySelector("#ghOwner").value.trim(),
+      repo: app.querySelector("#ghRepo").value.trim(),
+      branch: app.querySelector("#ghBranch").value.trim() || "main",
+      token: app.querySelector("#ghToken").value.trim(),
+    };
+    if (!cfg.owner || !cfg.repo || !cfg.token) {
+      alert("Preenche pelo menos dono, repositório e token.");
+      return;
+    }
+    githubConfig = cfg;
+    saveGithubConfig(cfg);
+    githubSyncStatus = "syncing";
+    render();
+    const found = await githubFetchLiveData();
+    if (!found) {
+      // ainda não há ficheiro no repositório — cria-o agora com os dados atuais
+      await githubPushLiveData();
+    }
+    showToast("Sincronização GitHub ativa ✓");
+    render();
+  });
+
+  const ghDisconnectBtn = app.querySelector("#ghDisconnectBtn");
+  if (ghDisconnectBtn) ghDisconnectBtn.addEventListener("click", () => {
+    if (!confirm("Desligar a sincronização neste dispositivo? Os dados ficam só locais outra vez.")) return;
+    githubConfig = null;
+    githubSha = null;
+    localStorage.removeItem(GITHUB_CONFIG_KEY);
+    githubSyncStatus = "off";
+    render();
   });
 
   // Admin — exercises CRUD
