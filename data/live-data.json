@@ -33,22 +33,27 @@
           "label": "Primary Lift",
           "sets": 4,
           "restSeconds": 60,
-          "pool": [
-            "ex-002"
-          ]
+          "pool": []
         },
         {
           "id": "ph-push-pull",
-          "label": "Pull",
-          "sets": 3,
+          "label": "Pull Strength",
+          "sets": 4,
           "restSeconds": 60,
           "pool": []
         },
         {
           "id": "ph-push-stability",
-          "label": "Stability",
+          "label": "Stability & Control",
+          "sets": 4,
+          "restSeconds": 60,
+          "pool": []
+        },
+        {
+          "id": "ph-g1pf3o2",
+          "label": "Carries",
           "sets": 3,
-          "restSeconds": 45,
+          "restSeconds": 60,
           "pool": []
         }
       ]
