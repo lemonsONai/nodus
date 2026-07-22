@@ -185,6 +185,23 @@
       "notes": "Pull the weight toward your hip while keeping your back flat and torso stable.",
       "gif": "assets/exercises/Single-Arm-Row.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-1784761507269",
+      "name": "Gorilla Row",
+      "category": "strength",
+      "primaryMuscle": "Back (Lats)",
+      "secondaryMuscles": [
+        "Rhomboids",
+        "Traps",
+        "Biceps",
+        "Core",
+        "Forearms"
+      ],
+      "difficulty": "beginner",
+      "notes": "Keep a strong hip hinge and row one kettlebell at a time without rotating your torso.",
+      "gif": "assets/exercises/Gorilla-Row.png",
+      "thumbnail": ""
     }
   ],
   "workouts": [
