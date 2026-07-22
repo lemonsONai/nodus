@@ -93,8 +93,8 @@
   "workouts": [
     {
       "id": "wo-push",
-      "name": "Push",
-      "day": "A",
+      "name": "Upper Body Strength",
+      "day": "UP",
       "category": "strength",
       "phases": [
         {
@@ -102,7 +102,13 @@
           "label": "Primary Lift",
           "sets": 4,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-006",
+            "ex-3c17sgp",
+            "ex-vwqk03t",
+            "ex-i9b4zog",
+            "ex-7ln484l"
+          ]
         },
         {
           "id": "ph-push-pull",
