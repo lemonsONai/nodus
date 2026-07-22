@@ -81,6 +81,21 @@
       "notes": "Rotate the dumbbells smoothly while pressing and lower under full control.",
       "gif": "assets/exercises/Dumbbell-Arnold-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-sdls2nz",
+      "name": "Barbell Floor Press",
+      "category": "strength",
+      "primaryMuscle": "Chest",
+      "secondaryMuscles": [
+        "Triceps",
+        "Shoulders",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Press the bar vertically from the floor and pause briefly before each repetition.",
+      "gif": "assets/exercises/Barbell-Floor-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
