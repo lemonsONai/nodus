@@ -283,7 +283,13 @@
           "label": "Heavy Press",
           "sets": 3,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-sdls2nz",
+            "ex-o4io4aj",
+            "ex-yid68ui",
+            "ex-bk16hlk",
+            "ex-kr261i7"
+          ]
         },
         {
           "id": "ph-2pbjjcm",
