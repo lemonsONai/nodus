@@ -111,6 +111,20 @@
       "notes": "Lower until your upper arms touch the floor, then press with control.",
       "gif": "assets/exercises/Barbell-Floor-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-yid68ui",
+      "name": "Barbell Bench Press",
+      "category": "strength",
+      "primaryMuscle": "Chest",
+      "secondaryMuscles": [
+        "Triceps",
+        "Shoulders"
+      ],
+      "difficulty": "beginner",
+      "notes": "Keep your shoulder blades retracted and press the bar in a controlled path.",
+      "gif": "assets/exercises/Barbell-Bench-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
