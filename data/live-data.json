@@ -170,13 +170,6 @@
       "thumbnail": ""
     }
   ],
-  "settings": {
-    "theme": "dark",
-    "defaultRestSeconds": 60,
-    "accentColor": "#C9FF3D",
-    "personName": "",
-    "backgroundStyle": "diagonal"
-  },
   "workouts": [
     {
       "id": "wo-push",
@@ -322,6 +315,13 @@
       ]
     }
   ],
+  "settings": {
+    "theme": "dark",
+    "defaultRestSeconds": 60,
+    "accentColor": "#C9FF3D",
+    "personName": "",
+    "backgroundStyle": "diagonal"
+  },
   "plan": {
     "schedule": {
       "0": "rest",
@@ -331,6 +331,16 @@
       "4": "C",
       "5": "D",
       "6": "E"
+    }
+  },
+  "quotes": {
+    "strength": {
+      "text": "A força não nasce da capacidade física. Nasce de uma vontade indomável.",
+      "author": ""
+    },
+    "yoga": {
+      "text": "A respiração é a ponte entre o corpo e a mente.",
+      "author": ""
     }
   },
   "history": [
@@ -345,7 +355,7 @@
     }
   ],
   "phaseRotation": {
-    "wo-push:ph-push-primary": 2,
+    "wo-push:ph-push-primary": 3,
     "wo-push:ph-push-pull": 0,
     "wo-push:ph-push-stability": 1,
     "wo-push:ph-g1pf3o2": 1,
