@@ -236,6 +236,23 @@
       "notes": "Maintain a rigid plank while rowing without allowing your hips to twist.",
       "gif": "assets/exercises/Renegade-Row.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-1784761606659",
+      "name": "High Pull",
+      "category": "strength",
+      "primaryMuscle": "Upper Back (Traps)",
+      "secondaryMuscles": [
+        "Shoulders",
+        "Lats",
+        "Biceps",
+        "Glutes",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Drive from the hips and pull the weight close to your body with elbows leading high.",
+      "gif": "assets/exercises/High-Pull.png",
+      "thumbnail": ""
     }
   ],
   "workouts": [
