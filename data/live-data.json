@@ -345,7 +345,7 @@
     }
   ],
   "phaseRotation": {
-    "wo-push:ph-push-primary": 1,
+    "wo-push:ph-push-primary": 2,
     "wo-push:ph-push-pull": 0,
     "wo-push:ph-push-stability": 1,
     "wo-push:ph-g1pf3o2": 1,
