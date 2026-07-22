@@ -32,6 +32,23 @@
       "notes": "Clean close to the body, stabilise in the rack position, then press overhead with control.",
       "gif": "assets/exercises/Single-Kettlebell-Clean-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-vwqk03t",
+      "name": "Double Kettlebell Clean & Press",
+      "category": "strength",
+      "primaryMuscle": "Shoulders",
+      "secondaryMuscles": [
+        "Triceps",
+        "Core",
+        "Glutes",
+        "Upper Back",
+        "Forearms"
+      ],
+      "difficulty": "beginner",
+      "notes": "Clean both kettlebells smoothly, brace your core and press straight overhead.",
+      "gif": "assets/exercises/Double-Kettlebell-Clean-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
