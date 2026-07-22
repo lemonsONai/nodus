@@ -15,6 +15,23 @@
       "notes": "Keep your core tight and press the bar vertically without using leg drive.",
       "gif": "assets/exercises/Barbell-Strict-Press.png",
       "thumbnail": "assets/thumbnails/hip-thrust.webp"
+    },
+    {
+      "id": "ex-3c17sgp",
+      "name": "Single Kettlebell Clean & Press",
+      "category": "strength",
+      "primaryMuscle": "Shoulders",
+      "secondaryMuscles": [
+        "Triceps",
+        "Core",
+        "Glutes",
+        "Upper Back",
+        "Forearms"
+      ],
+      "difficulty": "beginner",
+      "notes": "Clean close to the body, stabilise in the rack position, then press overhead with control.",
+      "gif": "assets/exercises/Single-Kettlebell-Clean-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
