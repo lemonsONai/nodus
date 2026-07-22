@@ -1,0 +1,474 @@
+import type { LiveData } from "../types";
+
+export const seedData: LiveData = {
+  "exercises": [
+    {
+      "id": "ex-001",
+      "name": "Dumbbell row",
+      "category": "strength",
+      "primaryMuscle": "Costas",
+      "secondaryMuscles": [
+        "Bíceps"
+      ],
+      "difficulty": "beginner",
+      "notes": "Mantém as costas neutras, puxa o cotovelo para trás sem rodar o tronco.",
+      "gif": "assets/exercises/dumbbell-row.gif",
+      "thumbnail": "assets/thumbnails/dumbbell-row.webp"
+    },
+    {
+      "id": "ex-002",
+      "name": "Push-up",
+      "category": "strength",
+      "primaryMuscle": "Peito",
+      "secondaryMuscles": [
+        "Tríceps",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Mãos ligeiramente mais largas que os ombros, corpo em linha reta.",
+      "gif": "assets/exercises/push-up.mp4",
+      "thumbnail": "assets/thumbnails/push-up.webp"
+    },
+    {
+      "id": "ex-003",
+      "name": "Shoulder press",
+      "category": "strength",
+      "primaryMuscle": "Ombros",
+      "secondaryMuscles": [
+        "Tríceps"
+      ],
+      "difficulty": "intermediate",
+      "notes": "Cotovelos ligeiramente à frente do corpo, não bloquear no topo.",
+      "gif": "assets/exercises/shoulder-press.gif",
+      "thumbnail": "assets/thumbnails/shoulder-press.webp"
+    },
+    {
+      "id": "ex-004",
+      "name": "Plank",
+      "category": "strength",
+      "primaryMuscle": "Core",
+      "secondaryMuscles": [],
+      "difficulty": "beginner",
+      "notes": "Corpo em linha reta, sem deixar a anca cair.",
+      "gif": "assets/exercises/plank.gif",
+      "thumbnail": "assets/thumbnails/plank.webp"
+    },
+    {
+      "id": "ex-005",
+      "name": "Agachamento (Squat)",
+      "category": "strength",
+      "primaryMuscle": "Quadríceps",
+      "secondaryMuscles": [
+        "Glúteos",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Joelhos alinhados com os pés, desce até às coxas ficarem paralelas ao chão.",
+      "gif": "assets/exercises/squat.gif",
+      "thumbnail": "assets/thumbnails/squat.webp"
+    },
+    {
+      "id": "ex-006",
+      "name": "Elevação pélvica (Hip thrust)",
+      "category": "strength",
+      "primaryMuscle": "Glúteos",
+      "secondaryMuscles": [
+        "Isquiotibiais"
+      ],
+      "difficulty": "beginner",
+      "notes": "Empurra através dos calcanhares, aperta os glúteos no topo.",
+      "gif": "assets/exercises/hip-thrust.gif",
+      "thumbnail": "assets/thumbnails/hip-thrust.webp"
+    },
+    {
+      "id": "ex-007",
+      "name": "Afundo (Lunge)",
+      "category": "strength",
+      "primaryMuscle": "Quadríceps",
+      "secondaryMuscles": [
+        "Glúteos"
+      ],
+      "difficulty": "intermediate",
+      "notes": "Tronco direito, joelho da frente não ultrapassa a ponta do pé.",
+      "gif": "assets/exercises/lunge.gif",
+      "thumbnail": "assets/thumbnails/lunge.webp"
+    },
+    {
+      "id": "ex-008",
+      "name": "Elevação de gémeos (Calf raise)",
+      "category": "strength",
+      "primaryMuscle": "Gémeos",
+      "secondaryMuscles": [],
+      "difficulty": "beginner",
+      "notes": "Sobe até à ponta dos pés, controla a descida devagar.",
+      "gif": "assets/exercises/calf-raise.gif",
+      "thumbnail": "assets/thumbnails/calf-raise.webp"
+    },
+    {
+      "id": "ex-009",
+      "name": "Chest press",
+      "category": "strength",
+      "primaryMuscle": "Peito",
+      "secondaryMuscles": [
+        "Tríceps",
+        "Ombros"
+      ],
+      "difficulty": "beginner",
+      "notes": "Cotovelos a 45º do tronco, não bloquear no topo.",
+      "gif": "assets/exercises/chest-press.gif",
+      "thumbnail": "assets/thumbnails/chest-press.webp"
+    },
+    {
+      "id": "ex-010",
+      "name": "Face pull",
+      "category": "strength",
+      "primaryMuscle": "Ombros",
+      "secondaryMuscles": [
+        "Costas"
+      ],
+      "difficulty": "intermediate",
+      "notes": "Puxa em direção à cara, cotovelos altos, aperta as omoplatas.",
+      "gif": "assets/exercises/face-pull.gif",
+      "thumbnail": "assets/thumbnails/face-pull.webp"
+    },
+    {
+      "id": "yg-001",
+      "name": "Cão olhando para baixo",
+      "category": "yoga",
+      "primaryMuscle": "Corpo inteiro",
+      "secondaryMuscles": [
+        "Isquiotibiais",
+        "Ombros"
+      ],
+      "difficulty": "beginner",
+      "notes": "Calcanhares em direção ao chão, alonga a coluna, respira devagar.",
+      "gif": "assets/yoga/downward-dog.gif",
+      "thumbnail": "assets/thumbnails/downward-dog.webp"
+    },
+    {
+      "id": "yg-002",
+      "name": "Postura da criança",
+      "category": "yoga",
+      "primaryMuscle": "Costas",
+      "secondaryMuscles": [
+        "Anca"
+      ],
+      "difficulty": "beginner",
+      "notes": "Testa no chão, braços estendidos ou ao lado do corpo, respira fundo.",
+      "gif": "assets/yoga/child-pose.gif",
+      "thumbnail": "assets/thumbnails/child-pose.webp"
+    },
+    {
+      "id": "yg-003",
+      "name": "Guerreiro II",
+      "category": "yoga",
+      "primaryMuscle": "Pernas",
+      "secondaryMuscles": [
+        "Core",
+        "Ombros"
+      ],
+      "difficulty": "intermediate",
+      "notes": "Joelho da frente alinhado com o tornozelo, braços paralelos ao chão.",
+      "gif": "assets/yoga/warrior-2.gif",
+      "thumbnail": "assets/thumbnails/warrior-2.webp"
+    },
+    {
+      "id": "yg-004",
+      "name": "Postura do gato-vaca",
+      "category": "yoga",
+      "primaryMuscle": "Coluna",
+      "secondaryMuscles": [
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Alterna entre arquear e arredondar as costas, sincroniza com a respiração.",
+      "gif": "assets/yoga/cat-cow.gif",
+      "thumbnail": "assets/thumbnails/cat-cow.webp"
+    },
+    {
+      "id": "yg-005",
+      "name": "Torção sentada",
+      "category": "yoga",
+      "primaryMuscle": "Coluna",
+      "secondaryMuscles": [
+        "Core",
+        "Anca"
+      ],
+      "difficulty": "beginner",
+      "notes": "Roda a partir da base da coluna, mantém a espinha longa.",
+      "gif": "assets/yoga/seated-twist.gif",
+      "thumbnail": "assets/thumbnails/seated-twist.webp"
+    }
+  ],
+  "workouts": [
+    {
+      "id": "wo-push",
+      "name": "Push",
+      "day": "A",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-push-primary",
+          "label": "Primary Lift",
+          "sets": 4,
+          "restSeconds": 60,
+          "pool": [
+            "ex-002",
+            "ex-009"
+          ]
+        },
+        {
+          "id": "ph-push-pull",
+          "label": "Pull",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-001",
+            "ex-010"
+          ]
+        },
+        {
+          "id": "ph-push-stability",
+          "label": "Stability",
+          "sets": 3,
+          "restSeconds": 45,
+          "pool": [
+            "ex-004"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wo-pull",
+      "name": "Pull",
+      "day": "B",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-pull-primary",
+          "label": "Primary Pull",
+          "sets": 4,
+          "restSeconds": 60,
+          "pool": [
+            "ex-001"
+          ]
+        },
+        {
+          "id": "ph-pull-secondary",
+          "label": "Secondary Pull",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-010"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wo-legs",
+      "name": "Legs",
+      "day": "C",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-legs-primary",
+          "label": "Primary Lift",
+          "sets": 4,
+          "restSeconds": 75,
+          "pool": [
+            "ex-005",
+            "ex-006"
+          ]
+        },
+        {
+          "id": "ph-legs-accessory",
+          "label": "Accessory",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-007"
+          ]
+        },
+        {
+          "id": "ph-legs-isolation",
+          "label": "Isolation",
+          "sets": 3,
+          "restSeconds": 45,
+          "pool": [
+            "ex-008"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wo-shoulders-core",
+      "name": "Shoulders & Core",
+      "day": "D",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-sc-primary",
+          "label": "Primary Lift",
+          "sets": 4,
+          "restSeconds": 60,
+          "pool": [
+            "ex-003"
+          ]
+        },
+        {
+          "id": "ph-sc-pull",
+          "label": "Pull",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-010"
+          ]
+        },
+        {
+          "id": "ph-sc-stability",
+          "label": "Stability",
+          "sets": 3,
+          "restSeconds": 45,
+          "pool": [
+            "ex-004"
+          ]
+        },
+        {
+          "id": "ph-sc-isolation",
+          "label": "Isolation",
+          "sets": 3,
+          "restSeconds": 45,
+          "pool": [
+            "ex-008"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wo-full-body",
+      "name": "Full body",
+      "day": "E",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-fb-primary",
+          "label": "Primary Lift",
+          "sets": 3,
+          "restSeconds": 75,
+          "pool": [
+            "ex-005"
+          ]
+        },
+        {
+          "id": "ph-fb-push",
+          "label": "Push",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-002"
+          ]
+        },
+        {
+          "id": "ph-fb-pull",
+          "label": "Pull",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-001"
+          ]
+        },
+        {
+          "id": "ph-fb-accessory",
+          "label": "Accessory",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": [
+            "ex-007"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wo-yoga-morning",
+      "name": "Yoga matinal",
+      "category": "yoga",
+      "phases": [
+        {
+          "id": "ph-yg-warmup",
+          "label": "Aquecimento",
+          "sets": 1,
+          "restSeconds": 15,
+          "pool": [
+            "yg-004"
+          ]
+        },
+        {
+          "id": "ph-yg-stretch",
+          "label": "Alongamento",
+          "sets": 1,
+          "restSeconds": 15,
+          "pool": [
+            "yg-001"
+          ]
+        },
+        {
+          "id": "ph-yg-balance",
+          "label": "Equilíbrio",
+          "sets": 1,
+          "restSeconds": 20,
+          "pool": [
+            "yg-003"
+          ]
+        },
+        {
+          "id": "ph-yg-twist",
+          "label": "Torção",
+          "sets": 1,
+          "restSeconds": 15,
+          "pool": [
+            "yg-005"
+          ]
+        },
+        {
+          "id": "ph-yg-relax",
+          "label": "Relaxamento",
+          "sets": 1,
+          "restSeconds": 20,
+          "pool": [
+            "yg-002"
+          ]
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "theme": "dark",
+    "defaultRestSeconds": 60,
+    "accentColor": "#C9FF3D",
+    "personName": "",
+    "backgroundStyle": "glow"
+  },
+  "plan": {
+    "schedule": {
+      "0": "rest",
+      "1": "A",
+      "2": "B",
+      "3": "rest",
+      "4": "C",
+      "5": "D",
+      "6": "E"
+    }
+  },
+  "quotes": {
+    "strength": {
+      "text": "A força não nasce da capacidade física. Nasce de uma vontade indomável.",
+      "author": ""
+    },
+    "yoga": {
+      "text": "A respiração é a ponte entre o corpo e a mente.",
+      "author": ""
+    }
+  },
+  "history": [],
+  "phaseRotation": {}
+};
