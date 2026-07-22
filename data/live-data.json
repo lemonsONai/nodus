@@ -280,7 +280,13 @@
           "label": "Pull Strength",
           "sets": 4,
           "restSeconds": 60,
-          "pool": []
+          "pool": [
+            "ex-1784761606659",
+            "ex-1784761570780",
+            "ex-1784761538289",
+            "ex-1784761507269",
+            "ex-1784761463680"
+          ]
         },
         {
           "id": "ph-push-stability",
