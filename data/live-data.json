@@ -404,6 +404,13 @@
           "pool": []
         }
       ]
+    },
+    {
+      "id": "wo-1784761777675-fduub",
+      "name": "Back Strength",
+      "day": "Back Strength",
+      "category": "strength",
+      "phases": []
     }
   ],
   "settings": {
