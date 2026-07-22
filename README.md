@@ -2,6 +2,17 @@
 
 Companheiro visual de treino. Sem instalação, sem build, sem npm.
 
+## ⚠️ Ao atualizares para uma versão nova
+
+- ✅ Substitui: `index.html`, `app.js`, `styles.css`, pasta `assets/`
+- ❌ **Nunca substituas `data/live-data.json`** se já tiveres a Sincronização
+  GitHub ativa — é a tua base de dados real, só tua, nunca vem incluída
+  nas atualizações a partir daqui em diante. Sobrescrevê-la apaga os
+  teus treinos/exercícios reais pelos dados de exemplo.
+- Os outros ficheiros em `data/` (exercises.js, workouts.js, etc.) só
+  servem de exemplo/reserva inicial — podes substituí-los sem risco
+  depois de teres a sincronização GitHub ativa.
+
 ## Como abrir
 
 - **PC**: faz duplo-clique em `index.html`. Abre no browser por definição.
@@ -204,6 +215,31 @@ seu próprio token, localmente, nunca partilhado nos dados sincronizados).
   com só duas pessoas a usar.
 - Podes desligar isto a qualquer momento em Admin, sem perderes os dados
   (ficam guardados localmente também).
+
+## Terminologia: Categoria e Treino
+
+- **Categoria** (ex: "Upper Body Strength") — o que escolhes para treinar.
+  Cria/edita em Gerir.
+- **Treino** (ex: "Primary Lift", "Pull Strength") — cada unidade dentro
+  de uma categoria, com o seu nº de séries, descanso, e uma lista de
+  exercícios possíveis (roda entre eles a cada sessão se houver mais que
+  um).
+
+## Player: navegação livre e lista de estado
+
+Ao entrares numa categoria, o Player mostra uma lista de todos os seus
+treinos (pendente ○ / feito ✓ / ignorado –). Podes:
+- Tocar em qualquer treino da lista para ires direto a ele, em qualquer
+  ordem — não precisas de completar o atual primeiro.
+- Usar as setas ← → para andares livremente entre treinos.
+- Marcar um treino como feito/pendente (para o repetires) ou ignorado
+  (para o saltares) a qualquer momento.
+- Tocar em "Terminar sessão agora" para acabares e registares no
+  histórico, mesmo sem teres feito todos os treinos.
+
+Ao completares todas as séries do treino atual, a app avança sozinha
+para o próximo pendente — mas isso é só uma sugestão, podes sempre ir
+para onde quiseres.
 
 ## Adicionar um exercício novo
 

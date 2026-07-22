@@ -236,7 +236,7 @@ function migrateWorkout(w) {
   if (w.phases) return w;
   const phases = (w.exercises || []).map((we, i) => ({
     id: `ph-${i}`,
-    label: `Fase ${i + 1}`,
+    label: `Treino ${i + 1}`,
     sets: we.sets || 1,
     restSeconds: we.restSeconds || 60,
     pool: [we.exerciseId],
@@ -471,7 +471,7 @@ function viewHome() {
 function viewInfo() {
   const changelog = [
     "Biblioteca de exercícios (força + yoga), com GIF/vídeo, notas e músculos",
-    "Treinos por dia (letras A, B, C...) com séries e descanso configuráveis",
+    "Categorias por dia (letras A, B, C...) com séries e descanso configuráveis",
     "Workout Player com temporizador de descanso e ecrã de conclusão",
     "Plano semanal/mensal com calendário e marcação de dias feitos",
     "Histórico de sessões por pessoa, com exportar/importar e fusão automática",
@@ -491,7 +491,11 @@ function viewInfo() {
     },
     {
       q: "Como funcionam as séries e o descanso?",
-      a: "Cada exercício de um treino tem um nº de séries e segundos de descanso, ajustáveis no Builder com os botões −/+. No Player, repete o mesmo exercício até esgotares as séries (com descanso entre cada) antes de avançar para o seguinte.",
+      a: "Cada treino dentro de uma categoria tem um nº de séries e segundos de descanso, ajustáveis no Builder com os botões −/+. No Player, repete o mesmo treino até esgotares as séries (com descanso entre cada) antes de avançares.",
+    },
+    {
+      q: "Categoria, treino, o que é o quê?",
+      a: "Categoria (ex: \"Upper Body Strength\") é o que escolhes para treinar hoje. Dentro dela, tens vários treinos (ex: \"Primary Lift\", \"Pull Strength\") — cada um pode ter várias opções de exercício, e a app roda entre elas a cada sessão. No Player, navega livremente entre os treinos da categoria com as setas ou tocando na lista, e marca-os como feitos, pendentes ou ignorados conforme quiseres.",
     },
   ];
 
@@ -562,7 +566,7 @@ function weekStrip() {
           <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${d.getDate()}/${d.getMonth() + 1}</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:12px;color:${letter === "rest" ? "var(--text-faint)" : "var(--text-dim)"};">${letter === "rest" ? "Descanso" : (workout ? workout.name : "Treino " + letter)}</span>
+          <span style="font-size:12px;color:${letter === "rest" ? "var(--text-faint)" : "var(--text-dim)"};">${letter === "rest" ? "Descanso" : (workout ? workout.name : "Categoria " + letter)}</span>
           ${workout ? `<button class="day-toggle" data-toggle-session="${key}:${workout.id}" style="width:22px;height:22px;border-radius:50%;border:1px solid ${done ? "var(--accent)" : "var(--border)"};background:${done ? "var(--accent)" : "transparent"};color:${done ? "#0a0a09" : "transparent"};font-size:12px;line-height:1;">✓</button>` : ""}
         </div>
       </div>`);
@@ -713,7 +717,7 @@ function importHistoryFile(file) {
 /* ---------- Category list ---------- */
 
 const CATEGORY_LABELS = {
-  strength: "Treino",
+  strength: "Força",
   yoga: "Yoga",
   mobility: "Mobilidade",
   custom: "Personalizado",
@@ -751,16 +755,16 @@ function viewCategoryList(cat) {
         <div data-nav="#/player/${w.id}" style="border-radius:16px;padding:16px;background:${isToday ? "linear-gradient(160deg, var(--tone-strength-1), var(--tone-strength-2))" : "var(--surface)"};border:1px solid ${isToday ? "var(--accent)" : "var(--border)"};cursor:pointer;min-height:92px;position:relative;">
           <button data-edit="${w.id}" style="position:absolute;top:10px;left:10px;width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;">${icon("edit")}</button>
           ${isToday ? `<span style="position:absolute;top:10px;right:12px;color:var(--accent);font-size:10px;font-weight:600;letter-spacing:1px;">HOJE</span>` : ""}
-          <p style="color:var(--text-faint);font-size:11px;margin:22px 0 6px;">${w.day ? "Treino " + w.day : "Sem dia atribuído"}</p>
+          <p style="color:var(--text-faint);font-size:11px;margin:22px 0 6px;">${w.day ? "Categoria " + w.day : "Sem dia atribuído"}</p>
           <p style="color:#fff;font-size:15px;font-weight:600;margin:0 0 4px;">${w.name}</p>
-          <p style="color:var(--text-faint);font-size:11px;margin:0;">${w.phases.length} fases</p>
+          <p style="color:var(--text-faint);font-size:11px;margin:0;">${w.phases.length} treinos</p>
         </div>`;
     }).join("");
 
     const addCard = `
       <div data-nav="#/builder/${cat}" style="border-radius:16px;padding:16px;background:var(--surface-2);border:1px dashed var(--border);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;min-height:92px;color:var(--text-faint);">
         ${icon("plus")}
-        <span style="color:var(--text-faint);font-size:11px;">Novo treino</span>
+        <span style="color:var(--text-faint);font-size:11px;">Nova categoria</span>
       </div>`;
 
     return `
@@ -772,7 +776,7 @@ function viewCategoryList(cat) {
         ${weekStrip()}
       </div>
 
-      <p class="section-label">Que treino queres fazer hoje?</p>
+      <p class="section-label">Que categoria queres treinar?</p>
       <p style="color:var(--text-faint);font-size:11px;margin:-6px 0 12px;">Todos os que criares aparecem aqui. A letra do dia é só para a rotação semanal (opcional).</p>
       <div class="day-grid" style="margin-bottom:20px;">
         ${dayCards}${addCard}
@@ -794,11 +798,11 @@ function viewCategoryList(cat) {
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <button data-edit="${w.id}" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.06);border:none;color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;">${icon("edit")}</button>
-            <span style="color:var(--text-faint);font-size:12px;">${w.phases.length} fases</span>
+            <span style="color:var(--text-faint);font-size:12px;">${w.phases.length} treinos</span>
           </div>
         </div>`).join("")}
     </div>` : `<p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">Ainda sem dias nesta categoria.</p>`}
-    <button class="btn btn-accent" style="width:100%;" data-nav="#/builder/${cat}">+ Novo dia de ${label.toLowerCase()}</button>
+    <button class="btn btn-accent" style="width:100%;" data-nav="#/builder/${cat}">+ Nova categoria de ${label.toLowerCase()}</button>
   `;
 }
 
@@ -818,7 +822,7 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
       const category = workoutIdOrCategory || "custom";
       builderDraft = {
         id: uid("wo"),
-        name: presetDay ? `Treino ${presetDay}` : "Novo treino",
+        name: presetDay ? `Categoria ${presetDay}` : "Nova categoria",
         day: presetDay || "",
         category,
         phases: [],
@@ -867,7 +871,7 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
         </div>
 
         <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px;">
-          Opções desta fase ${pool.length > 1 ? "(roda entre elas a cada sessão)" : ""}
+          Opções deste treino ${pool.length > 1 ? "(roda entre elas a cada sessão)" : ""}
         </p>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${addable.length ? "10px" : "0"};">
           ${poolChips || `<span style="color:var(--text-faint);font-size:12px;">Nenhuma ainda.</span>`}
@@ -882,27 +886,27 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
   const alreadySaved = state.workouts.some((w) => w.id === workout.id);
 
   return `
-    ${topbarHtml("Editar dia", `<a href="#/manage" id="builderCloseBtn">${icon("close")}</a>`)}
+    ${topbarHtml("Editar categoria", `<a href="#/manage" id="builderCloseBtn">${icon("close")}</a>`)}
 
-    <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 6px;">${alreadySaved ? `A EDITAR "${existing.name}"${existing.day ? " · DIA " + existing.day.toUpperCase() : ""} (${existing.phases.length} fases guardadas)` : "NOVO TREINO — AINDA NÃO GUARDADO"}</p>
-    ${builderDirty ? `<div style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.4);border-radius:12px;padding:10px 14px;margin-bottom:16px;"><p style="color:#ff8a8a;font-size:12px;font-weight:600;margin:0;">⚠ Tens alterações por guardar — toca em "Guardar treino" no fundo antes de saíres.</p></div>` : `<p style="color:var(--text-faint);font-size:11px;margin:0 0 16px;">Tudo guardado.</p>`}
+    <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 6px;">${alreadySaved ? `A EDITAR "${existing.name}"${existing.day ? " · DIA " + existing.day.toUpperCase() : ""} (${existing.phases.length} treinos guardados)` : "NOVA CATEGORIA — AINDA NÃO GUARDADA"}</p>
+    ${builderDirty ? `<div style="background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.4);border-radius:12px;padding:10px 14px;margin-bottom:16px;"><p style="color:#ff8a8a;font-size:12px;font-weight:600;margin:0;">⚠ Tens alterações por guardar — toca em "Guardar categoria" no fundo antes de saíres.</p></div>` : `<p style="color:var(--text-faint);font-size:11px;margin:0 0 16px;">Tudo guardado.</p>`}
 
-    <label>Nome do treino</label>
+    <label>Nome da categoria</label>
     <input type="text" id="w-name" value="${workout.name}">
     <label>Etiqueta do dia (opcional, ex: "A")</label>
     <input type="text" id="w-day" value="${workout.day || ""}">
 
-    <p class="section-label" style="margin-top:0;">Fases (roda automaticamente se tiveres mais que uma opção por fase)</p>
+    <p class="section-label" style="margin-top:0;">Treinos (roda automaticamente se tiveres mais que uma opção por treino)</p>
     <div class="card" style="padding:0;margin-bottom:14px;">
-      ${phaseRows || `<p style="color:var(--text-faint);font-size:13px;padding:16px;">Sem fases ainda.</p>`}
+      ${phaseRows || `<p style="color:var(--text-faint);font-size:13px;padding:16px;">Sem treinos ainda.</p>`}
     </div>
-    <button class="btn" style="width:100%;margin-bottom:24px;" id="addPhaseBtn">+ Nova fase</button>
+    <button class="btn" style="width:100%;margin-bottom:24px;" id="addPhaseBtn">+ Novo treino</button>
 
-    <button class="btn btn-accent" style="width:100%;" id="saveBuilderBtn">Guardar treino</button>
+    <button class="btn btn-accent" style="width:100%;" id="saveBuilderBtn">Guardar categoria</button>
 
     ${alreadySaved ? `
     <div style="margin-top:10px;">
-      <button class="btn btn-danger" style="width:100%;" data-delete-workout="${workout.id}">Apagar treino</button>
+      <button class="btn btn-danger" style="width:100%;" data-delete-workout="${workout.id}">Apagar categoria</button>
     </div>` : ""}
   `;
 }
@@ -917,18 +921,52 @@ function generateSession(workout) {
       const exerciseId = pickForPhase(workout.id, phase);
       if (!exerciseId) return null;
       return {
+        phaseId: phase.id,
         phaseLabel: phase.label,
         exerciseId,
         sets: phase.sets || 1,
         restSeconds: phase.restSeconds || 60,
+        status: "pending", // pending | done | skipped
       };
     })
     .filter(Boolean);
 }
 
+function firstPendingIndex(fromIndex) {
+  const session = playerState.session;
+  for (let i = 0; i < session.length; i++) {
+    const idx = (fromIndex + 1 + i) % session.length;
+    if (session[idx].status === "pending") return idx;
+  }
+  return -1;
+}
+
+function sessionSidebarHtml() {
+  const session = playerState.session;
+  return `
+    <div class="card" style="padding:0;margin-bottom:16px;">
+      ${session.map((s, i) => {
+        const isCurrent = i === playerState.index && !playerState.finished;
+        const icon2 = s.status === "done" ? "✓" : s.status === "skipped" ? "–" : "○";
+        const color = s.status === "done" ? "var(--accent)" : s.status === "skipped" ? "var(--text-faint)" : "rgba(255,255,255,0.7)";
+        return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);${isCurrent ? "background:rgba(255,255,255,0.04);" : ""}">
+          <div data-jump-to="${i}" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;">
+            <span style="color:${color};font-size:14px;width:16px;">${icon2}</span>
+            <span style="color:${s.status === "skipped" ? "var(--text-faint)" : "#fff"};font-size:13px;text-decoration:${s.status === "skipped" ? "line-through" : "none"};">${s.phaseLabel}</span>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button data-toggle-status="${i}" title="Marcar feito/pendente" style="background:none;border:none;color:var(--text-faint);font-size:12px;padding:4px 6px;">${s.status === "done" ? "↺" : "✓"}</button>
+            ${s.status !== "skipped" ? `<button data-skip-item="${i}" title="Ignorar" style="background:none;border:none;color:var(--text-faint);font-size:12px;padding:4px 6px;">–</button>` : ""}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+}
+
 function viewPlayer(workoutId) {
   const workout = state.workouts.find((w) => w.id === workoutId);
-  if (!workout) return `<p style="color:var(--text-dim);">Treino não encontrado.</p>`;
+  if (!workout) return `<p style="color:var(--text-dim);">Categoria não encontrada.</p>`;
 
   if (playerState.workoutId !== workoutId) {
     clearInterval(playerState.timer);
@@ -946,27 +984,30 @@ function viewPlayer(workoutId) {
   const ex = slot ? findExercise(slot.exerciseId) : null;
   const totalSets = (slot && slot.sets) || 1;
 
-  if (!ex) return `<p style="color:var(--text-dim);">Este treino ainda não tem exercícios nas fases. Edita-o em Gerir.</p>`;
+  if (!total) return `<p style="color:var(--text-dim);">Esta categoria ainda não tem treinos com exercícios. Edita-a em Gerir.</p>`;
 
   if (playerState.finished) {
     return `
       ${topbarHtml(workout.name, `<a href="#/">${icon("close")}</a>`)}
-      <div style="text-align:center;margin-top:60px;">
+      <div style="text-align:center;margin-top:40px;margin-bottom:24px;">
         <p style="font-size:40px;margin-bottom:12px;">✓</p>
-        <p style="color:#fff;font-size:18px;font-weight:600;margin-bottom:6px;">Treino completo</p>
-        <p style="color:var(--text-dim);font-size:13px;margin-bottom:28px;">Registado no histórico de hoje.</p>
+        <p style="color:#fff;font-size:18px;font-weight:600;margin-bottom:6px;">Categoria completa</p>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:20px;">Registado no histórico de hoje.</p>
         <button class="btn btn-accent" style="width:auto;padding:0 20px;" data-nav="#/">Voltar ao início</button>
       </div>
+      <p class="section-label" style="margin-top:0;">Resumo</p>
+      ${sessionSidebarHtml()}
     `;
   }
 
+  if (!ex) return `<p style="color:var(--text-dim);">Este treino não tem exercícios válidos. Edita a categoria em Gerir.</p>`;
+
   if (playerState.resting) {
     const isLastSetOfExercise = playerState.setIndex >= totalSets - 1;
-    const nextSlot = session[playerState.index + 1];
     return `
       ${topbarHtml(workout.name, `<a href="#/">${icon("close")}</a>`)}
       <p style="color:var(--text-dim);font-size:13px;text-align:center;margin-top:40px;">Descanso</p>
-      ${totalSets > 1 ? `<p style="color:var(--text-faint);font-size:12px;text-align:center;margin:0;">${isLastSetOfExercise ? "Próximo: " + (nextSlot ? findExercise(nextSlot.exerciseId).name : "fim") : "Série " + (playerState.setIndex + 2) + " / " + totalSets + " de " + ex.name}</p>` : ""}
+      ${totalSets > 1 ? `<p style="color:var(--text-faint);font-size:12px;text-align:center;margin:0;">${isLastSetOfExercise ? "Próximo treino a seguir" : "Série " + (playerState.setIndex + 2) + " / " + totalSets + " de " + ex.name}</p>` : ""}
       <p class="timer-display" id="timerDisplay">${playerState.seconds}</p>
       <div class="controls-row" style="justify-content:center;">
         <button class="btn" style="width:auto;padding:0 16px;" data-add-time="30">+30s</button>
@@ -975,19 +1016,25 @@ function viewPlayer(workoutId) {
     `;
   }
 
+  const supportMuscles = ex.secondaryMuscles && ex.secondaryMuscles.length ? ex.secondaryMuscles.join(", ") : "—";
+
   return `
     <div class="player-scroll">
       ${topbarHtml(`${playerState.index + 1} / ${total}`, `<a href="#/">${icon("close")}</a>`)}
-      ${slot.phaseLabel ? `<p style="color:var(--accent);font-size:12px;font-weight:700;letter-spacing:1.5px;margin:0 0 8px;text-transform:uppercase;">${slot.phaseLabel}</p>` : ""}
+      ${slot.phaseLabel ? `<p style="color:var(--accent);font-size:12px;font-weight:700;letter-spacing:1.5px;margin:0 0 8px;text-transform:uppercase;">${slot.phaseLabel}${totalSets > 1 ? ` · Série ${playerState.setIndex + 1}/${totalSets}` : ""}</p>` : ""}
       ${mediaHtml(ex.gif, ex.name)}
-      <p style="font-size:22px;font-weight:600;margin-bottom:4px;">${ex.name}</p>
-      <p style="color:var(--text-dim);font-size:14px;margin-bottom:${totalSets > 1 ? "2px" : "12px"};">${ex.primaryMuscle}${ex.secondaryMuscles && ex.secondaryMuscles.length ? " · secundário: " + ex.secondaryMuscles.join(", ") : ""}</p>
-      ${totalSets > 1 ? `<p style="color:var(--accent);font-size:13px;font-weight:600;margin-bottom:12px;">Série ${playerState.setIndex + 1} / ${totalSets}</p>` : ""}
-      ${ex.notes ? `<p style="color:rgba(255,255,255,0.65);font-size:13px;line-height:1.6;">${ex.notes}</p>` : ""}
+      <p style="font-size:22px;font-weight:600;margin-bottom:8px;">${ex.name}</p>
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:4px;"><strong style="color:rgba(255,255,255,0.8);">Primary Muscle(s):</strong> ${ex.primaryMuscle || "—"}</p>
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:10px;"><strong style="color:rgba(255,255,255,0.8);">Support Muscle(s):</strong> ${supportMuscles}</p>
+      ${ex.notes ? `<p style="color:rgba(255,255,255,0.65);font-size:13px;line-height:1.6;margin-bottom:20px;">${ex.notes}</p>` : ""}
+
+      <p class="section-label" style="margin-top:0;">Treinos desta categoria</p>
+      ${sessionSidebarHtml()}
+      <button class="btn" style="width:100%;margin-bottom:8px;" id="finishSessionBtn">Terminar sessão agora</button>
     </div>
     <div class="controls-row controls-fixed">
       <button class="btn" data-prev="1" ${playerState.index === 0 ? "disabled style='opacity:0.3'" : ""}>${icon("chevronLeft")}</button>
-      <button class="btn btn-accent btn-complete" data-complete="${slot.restSeconds || 60}">${totalSets > 1 && playerState.setIndex < totalSets - 1 ? "Completar série" : "Completar exercício"}</button>
+      <button class="btn btn-accent btn-complete" data-complete="${slot.restSeconds || 60}">${totalSets > 1 && playerState.setIndex < totalSets - 1 ? "Completar série" : "Completar treino"}</button>
       <button class="btn" data-next="1" ${playerState.index === total - 1 ? "disabled style='opacity:0.3'" : ""}>${icon("chevronRight")}</button>
     </div>
   `;
@@ -1008,23 +1055,24 @@ function startRest(seconds) {
   }, 1000);
 }
 
-function skipToNextExercise() {
-  clearInterval(playerState.timer);
-  playerState.resting = false;
+function finishWorkoutSession() {
   const workout = state.workouts.find((w) => w.id === playerState.workoutId);
-  if (playerState.index >= playerState.session.length - 1) {
-    logSession(dateKey(new Date()), workout);
-    playerState.finished = true;
-  } else {
-    playerState.index++;
-    playerState.setIndex = 0;
-  }
+  logSession(dateKey(new Date()), workout);
+  playerState.finished = true;
   render();
 }
+
+function jumpToIndex(i) {
+  clearInterval(playerState.timer);
+  playerState.resting = false;
+  playerState.index = i;
+  playerState.setIndex = 0;
+  render();
+}
+
 function goNext() {
   clearInterval(playerState.timer);
   playerState.resting = false;
-  const workout = state.workouts.find((w) => w.id === playerState.workoutId);
   const slot = playerState.session[playerState.index];
   const totalSets = (slot && slot.sets) || 1;
 
@@ -1034,14 +1082,15 @@ function goNext() {
     return;
   }
 
-  if (playerState.index >= playerState.session.length - 1) {
-    logSession(dateKey(new Date()), workout);
-    playerState.finished = true;
+  slot.status = "done";
+  const nextPending = firstPendingIndex(playerState.index);
+  if (nextPending === -1) {
+    finishWorkoutSession();
   } else {
-    playerState.index = Math.min(playerState.index + 1, playerState.session.length - 1);
+    playerState.index = nextPending;
     playerState.setIndex = 0;
+    render();
   }
-  render();
 }
 
 /* ---------- Admin ---------- */
@@ -1158,7 +1207,7 @@ function viewManage() {
   return `
     ${topbarHtml("Gerir", `<a href="#/">${icon("close")}</a>`)}
 
-    <p class="section-label" style="margin-top:0;">Treinos</p>
+    <p class="section-label" style="margin-top:0;">Categorias</p>
     ${categoryOrder.map((cat) => {
       const list = workoutsByCategory[cat] || [];
       return `
@@ -1172,7 +1221,7 @@ function viewManage() {
             <div>
               <span style="font-size:14px;">${w.name}</span>
               ${w.day ? `<span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.day}</span>` : ""}
-              <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.phases.length} fases</span>
+              <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.phases.length} treinos</span>
             </div>
             <div style="display:flex;gap:6px;">
               <button class="btn" style="height:32px;padding:0 10px;font-size:12px;width:auto;" data-nav="#/builder/${w.id}">Editar</button>
@@ -1235,7 +1284,7 @@ function scheduleEditorHtml() {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <span style="font-size:13px;">${WEEKDAY_LONG[dow]}</span>
       <select data-dow="${dow}" style="width:auto;margin-bottom:0;">
-        ${letters.map((l) => `<option value="${l}" ${schedule[dow] === l ? "selected" : ""}>${l === "rest" ? "Descanso" : "Treino " + l}</option>`).join("")}
+        ${letters.map((l) => `<option value="${l}" ${schedule[dow] === l ? "selected" : ""}>${l === "rest" ? "Descanso" : "Categoria " + l}</option>`).join("")}
       </select>
     </div>
   `).join("");
@@ -1381,7 +1430,7 @@ function attachHandlers(hash) {
   );
   const addPhaseBtn = app.querySelector("#addPhaseBtn");
   if (addPhaseBtn) addPhaseBtn.addEventListener("click", () => {
-    builderDraft.phases = [...builderDraft.phases, { id: uid("ph"), label: "Nova fase", sets: 3, restSeconds: 60, pool: [] }];
+    builderDraft.phases = [...builderDraft.phases, { id: uid("ph"), label: "Novo treino", sets: 3, restSeconds: 60, pool: [] }];
     builderDirty = true;
     render();
   });
@@ -1429,7 +1478,7 @@ function attachHandlers(hash) {
   app.querySelectorAll("[data-delete-wo]").forEach((el) =>
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-delete-wo");
-      if (!confirm("Apagar este treino? Não é possível desfazer.")) return;
+      if (!confirm("Apagar esta categoria? Não é possível desfazer.")) return;
       state.workouts = state.workouts.filter((w) => w.id !== id);
       render();
     })
@@ -1438,7 +1487,7 @@ function attachHandlers(hash) {
   const delWorkoutBtn = app.querySelector("[data-delete-workout]");
   if (delWorkoutBtn) delWorkoutBtn.addEventListener("click", () => {
     const id = delWorkoutBtn.getAttribute("data-delete-workout");
-    if (!confirm("Apagar este treino? Não é possível desfazer.")) return;
+    if (!confirm("Apagar esta categoria? Não é possível desfazer.")) return;
     state.workouts = state.workouts.filter((w) => w.id !== id);
     builderDraft = null;
     navigate("#/manage");
@@ -1448,13 +1497,38 @@ function attachHandlers(hash) {
   const completeBtn = app.querySelector("[data-complete]");
   if (completeBtn) completeBtn.addEventListener("click", () => startRest(Number(completeBtn.getAttribute("data-complete"))));
   const prevBtn = app.querySelector("[data-prev]");
-  if (prevBtn) prevBtn.addEventListener("click", () => { playerState.index = Math.max(playerState.index - 1, 0); playerState.setIndex = 0; render(); });
+  if (prevBtn) prevBtn.addEventListener("click", () => jumpToIndex(Math.max(playerState.index - 1, 0)));
   const nextBtn = app.querySelector("[data-next]");
-  if (nextBtn) nextBtn.addEventListener("click", skipToNextExercise);
+  if (nextBtn) nextBtn.addEventListener("click", () => jumpToIndex(Math.min(playerState.index + 1, playerState.session.length - 1)));
   const addTimeBtn = app.querySelector("[data-add-time]");
   if (addTimeBtn) addTimeBtn.addEventListener("click", () => { playerState.seconds += 30; document.getElementById("timerDisplay").textContent = playerState.seconds; });
   const skipBtn = app.querySelector("[data-skip-rest]");
   if (skipBtn) skipBtn.addEventListener("click", goNext);
+
+  app.querySelectorAll("[data-jump-to]").forEach((el) =>
+    el.addEventListener("click", () => jumpToIndex(Number(el.getAttribute("data-jump-to"))))
+  );
+  app.querySelectorAll("[data-toggle-status]").forEach((el) =>
+    el.addEventListener("click", (evt) => {
+      evt.stopPropagation();
+      const i = Number(el.getAttribute("data-toggle-status"));
+      const item = playerState.session[i];
+      item.status = item.status === "done" ? "pending" : "done";
+      render();
+    })
+  );
+  app.querySelectorAll("[data-skip-item]").forEach((el) =>
+    el.addEventListener("click", (evt) => {
+      evt.stopPropagation();
+      const i = Number(el.getAttribute("data-skip-item"));
+      playerState.session[i].status = "skipped";
+      render();
+    })
+  );
+  const finishSessionBtn = app.querySelector("#finishSessionBtn");
+  if (finishSessionBtn) finishSessionBtn.addEventListener("click", () => {
+    if (confirm("Terminar a sessão agora e registar no histórico?")) finishWorkoutSession();
+  });
 
   // Admin — color
   const personNameInput = app.querySelector("#personNameInput");
