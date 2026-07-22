@@ -198,6 +198,13 @@
       "thumbnail": "assets/thumbnails/seated-twist.webp"
     }
   ],
+  "settings": {
+    "theme": "dark",
+    "defaultRestSeconds": 60,
+    "accentColor": "#FF4ADE",
+    "personName": "",
+    "backgroundStyle": "glow"
+  },
   "workouts": [
     {
       "id": "wo-push",
@@ -439,13 +446,6 @@
       ]
     }
   ],
-  "settings": {
-    "theme": "dark",
-    "defaultRestSeconds": 60,
-    "accentColor": "#C9FF3D",
-    "personName": "",
-    "backgroundStyle": "glow"
-  },
   "plan": {
     "schedule": {
       "0": "rest",
