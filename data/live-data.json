@@ -418,6 +418,13 @@
       "day": "Shoulder Strength",
       "category": "strength",
       "phases": []
+    },
+    {
+      "id": "wo-1784761795292-vmrjc",
+      "name": "Core Strength",
+      "day": "Core Strength",
+      "category": "strength",
+      "phases": []
     }
   ],
   "settings": {
