@@ -96,6 +96,21 @@
       "notes": "Press the bar vertically from the floor and pause briefly before each repetition.",
       "gif": "assets/exercises/Barbell-Floor-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-o4io4aj",
+      "name": "Dumbbell Floor Press",
+      "category": "strength",
+      "primaryMuscle": "Chest",
+      "secondaryMuscles": [
+        "Triceps",
+        "Shoulders",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Lower until your upper arms touch the floor, then press with control.",
+      "gif": "assets/exercises/Barbell-Floor-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
