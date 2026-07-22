@@ -125,6 +125,21 @@
       "notes": "Keep your shoulder blades retracted and press the bar in a controlled path.",
       "gif": "assets/exercises/Barbell-Bench-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-bk16hlk",
+      "name": "Dumbbell Bench Press",
+      "category": "strength",
+      "primaryMuscle": "Chest",
+      "secondaryMuscles": [
+        "Triceps",
+        "Shoulders",
+        "Core"
+      ],
+      "difficulty": "beginner",
+      "notes": "Press both dumbbells evenly while keeping your feet firmly on the floor.",
+      "gif": "assets/exercises/Dumbbell-Bench-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
