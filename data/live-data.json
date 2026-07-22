@@ -49,6 +49,23 @@
       "notes": "Clean both kettlebells smoothly, brace your core and press straight overhead.",
       "gif": "assets/exercises/Double-Kettlebell-Clean-Press.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-7ln484l",
+      "name": "Double Push Press",
+      "category": "strength",
+      "primaryMuscle": "Shoulders",
+      "secondaryMuscles": [
+        "Triceps",
+        "Legs",
+        "Glutes",
+        "Core",
+        "Upper Back"
+      ],
+      "difficulty": "beginner",
+      "notes": "Use a shallow leg drive to generate power before pressing overhead.",
+      "gif": "assets/exercises/Double-Push-Press.png",
+      "thumbnail": ""
     }
   ],
   "settings": {
