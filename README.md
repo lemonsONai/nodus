@@ -144,6 +144,14 @@ guardar (✕), as alterações são descartadas — nada fica persistido a
 meio. O Player nunca é afetado pelo que estás a editar; só reflete a
 última versão guardada.
 
+## "Que treino queres fazer hoje?" mostra tudo
+
+Esta secção (dentro de Treino) mostra **todos os treinos de força que
+criares**, não só um conjunto fixo de 5. A "Etiqueta do dia" (A, B, C...)
+é só usada para a rotação semanal (Plano) e para destacar "HOJE" — não é
+obrigatória para o treino aparecer aqui. Cria quantos quiseres, com ou
+sem letra.
+
 ## Fases e variação automática
 
 Cada treino já não é uma lista simples de exercícios — é uma sequência de

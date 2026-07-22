@@ -577,26 +577,23 @@ function viewCategoryList(cat) {
     </div>`;
 
   if (cat === "strength") {
-    const dayLetters = ["A", "B", "C", "D", "E"];
-    const dayCards = dayLetters.map((letter) => {
-      const w = days.find((d) => d.day === letter);
-      const isToday = letter === todayLetter;
-      if (!w) {
-        return `
-          <div data-nav="#/builder/${cat}/${letter}" style="border-radius:16px;padding:16px;background:var(--surface-2);border:1px dashed var(--border);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;min-height:92px;">
-            <span style="color:var(--text-faint);font-size:20px;font-weight:600;">${letter}</span>
-            <span style="color:var(--text-faint);font-size:11px;">+ criar</span>
-          </div>`;
-      }
+    const dayCards = days.map((w) => {
+      const isToday = !!w.day && w.day === todayLetter;
       return `
         <div data-nav="#/player/${w.id}" style="border-radius:16px;padding:16px;background:${isToday ? "linear-gradient(160deg, var(--tone-strength-1), var(--tone-strength-2))" : "var(--surface)"};border:1px solid ${isToday ? "var(--accent)" : "var(--border)"};cursor:pointer;min-height:92px;position:relative;">
           <button data-edit="${w.id}" style="position:absolute;top:10px;left:10px;width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;">${icon("edit")}</button>
           ${isToday ? `<span style="position:absolute;top:10px;right:12px;color:var(--accent);font-size:10px;font-weight:600;letter-spacing:1px;">HOJE</span>` : ""}
-          <p style="color:var(--text-faint);font-size:11px;margin:22px 0 6px;">Treino ${letter}</p>
+          <p style="color:var(--text-faint);font-size:11px;margin:22px 0 6px;">${w.day ? "Treino " + w.day : "Sem dia atribuído"}</p>
           <p style="color:#fff;font-size:15px;font-weight:600;margin:0 0 4px;">${w.name}</p>
           <p style="color:var(--text-faint);font-size:11px;margin:0;">${w.phases.length} fases</p>
         </div>`;
     }).join("");
+
+    const addCard = `
+      <div data-nav="#/builder/${cat}" style="border-radius:16px;padding:16px;background:var(--surface-2);border:1px dashed var(--border);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;min-height:92px;color:var(--text-faint);">
+        ${icon("plus")}
+        <span style="color:var(--text-faint);font-size:11px;">Novo treino</span>
+      </div>`;
 
     return `
       ${topbarHtml(null, `<a href="#/">${icon("close")}</a>`)}
@@ -608,8 +605,9 @@ function viewCategoryList(cat) {
       </div>
 
       <p class="section-label">Que treino queres fazer hoje?</p>
+      <p style="color:var(--text-faint);font-size:11px;margin:-6px 0 12px;">Todos os que criares aparecem aqui. A letra do dia é só para a rotação semanal (opcional).</p>
       <div class="day-grid" style="margin-bottom:20px;">
-        ${dayCards}
+        ${dayCards}${addCard}
       </div>
     `;
   }
@@ -716,7 +714,8 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
   return `
     ${topbarHtml("Editar dia", `<a href="#/manage">${icon("close")}</a>`)}
 
-    <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 16px;">MODO DE EDIÇÃO — as alterações só ficam ao tocares em "Guardar treino"</p>
+    <p style="color:var(--accent);font-size:11px;font-weight:600;letter-spacing:1px;margin:0 0 6px;">${alreadySaved ? `A EDITAR "${existing.name}"${existing.day ? " · DIA " + existing.day.toUpperCase() : ""} (${existing.phases.length} fases guardadas)` : "NOVO TREINO — AINDA NÃO GUARDADO"}</p>
+    <p style="color:var(--text-faint);font-size:11px;margin:0 0 16px;">As alterações só ficam ao tocares em "Guardar treino"</p>
 
     <label>Nome do treino</label>
     <input type="text" id="w-name" value="${workout.name}">
