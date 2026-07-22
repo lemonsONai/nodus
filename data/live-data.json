@@ -12,20 +12,6 @@
       "notes": "Empurra através dos calcanhares, aperta os glúteos no topo.",
       "gif": "assets/exercises/hip-thrust.gif",
       "thumbnail": "assets/thumbnails/hip-thrust.webp"
-    },
-    {
-      "id": "yg-001",
-      "name": "Cão olhando para baixo",
-      "category": "yoga",
-      "primaryMuscle": "Corpo inteiro",
-      "secondaryMuscles": [
-        "Isquiotibiais",
-        "Ombros"
-      ],
-      "difficulty": "beginner",
-      "notes": "Calcanhares em direção ao chão, alonga a coluna, respira devagar.",
-      "gif": "assets/yoga/downward-dog.gif",
-      "thumbnail": "assets/thumbnails/downward-dog.webp"
     }
   ],
   "settings": {
