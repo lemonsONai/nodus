@@ -333,7 +333,17 @@
       "6": "E"
     }
   },
-  "history": [],
+  "history": [
+    {
+      "id": "hist-k5gso1w",
+      "date": "2026-07-22",
+      "workoutId": "wo-push",
+      "workoutName": "Upper Body Strength",
+      "category": "strength",
+      "day": "Upper Body Strength",
+      "person": "Eu"
+    }
+  ],
   "phaseRotation": {
     "wo-push:ph-push-primary": 3,
     "wo-push:ph-push-pull": 0,
