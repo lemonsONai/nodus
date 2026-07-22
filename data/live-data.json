@@ -219,6 +219,23 @@
       "notes": "Hinge at the hips, keep your back neutral and pull the bar toward your lower ribs.",
       "gif": "assets/exercises/Bent-Over-Row.png",
       "thumbnail": ""
+    },
+    {
+      "id": "ex-1784761570780",
+      "name": "Renegade Row",
+      "category": "strength",
+      "primaryMuscle": "Back (Lats)",
+      "secondaryMuscles": [
+        "Core",
+        "Shoulders",
+        "Biceps",
+        "Triceps",
+        "Glutes"
+      ],
+      "difficulty": "beginner",
+      "notes": "Maintain a rigid plank while rowing without allowing your hips to twist.",
+      "gif": "assets/exercises/Renegade-Row.png",
+      "thumbnail": ""
     }
   ],
   "workouts": [
