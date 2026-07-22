@@ -33,6 +33,7 @@ export function Player() {
   const [resting, setResting] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [mediaRatio, setMediaRatio] = useState(1402 / 1122);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const generatedFor = useRef<string | null>(null);
 
@@ -70,6 +71,10 @@ export function Player() {
   const slot = session[index];
   const ex = slot ? findExercise(data, slot.exerciseId) : undefined;
   const totalSets = slot?.sets || 1;
+
+  useEffect(() => {
+    setMediaRatio(1402 / 1122);
+  }, [slot?.exerciseId]);
 
   const firstPendingFrom = useMemo(
     () => (fromIndex: number, list: SessionItem[]) => {
@@ -299,13 +304,32 @@ export function Player() {
 
         <div
           className="rounded-[28px] overflow-hidden mx-auto mb-5 border border-white/10"
-          style={{ height: "min(480px, 50vh)", width: "auto", maxWidth: "100%", aspectRatio: "1402/1122", background: "linear-gradient(180deg,#1a1a18,#141412)" }}
+          style={{ height: "min(480px, 50vh)", width: "auto", maxWidth: "100%", aspectRatio: String(mediaRatio), background: "linear-gradient(180deg,#1a1a18,#141412)" }}
         >
           {ex.gif ? (
             isVideo(ex.gif) ? (
-              <video src={`${import.meta.env.BASE_URL}${ex.gif}`} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              <video
+                src={`${import.meta.env.BASE_URL}${ex.gif}`}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+                onLoadedMetadata={(e) => {
+                  const v = e.currentTarget;
+                  if (v.videoWidth && v.videoHeight) setMediaRatio(v.videoWidth / v.videoHeight);
+                }}
+              />
             ) : (
-              <img src={`${import.meta.env.BASE_URL}${ex.gif}`} alt={ex.name} className="w-full h-full object-cover" />
+              <img
+                src={`${import.meta.env.BASE_URL}${ex.gif}`}
+                alt={ex.name}
+                className="w-full h-full object-cover"
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  if (img.naturalWidth && img.naturalHeight) setMediaRatio(img.naturalWidth / img.naturalHeight);
+                }}
+              />
             )
           ) : null}
         </div>
