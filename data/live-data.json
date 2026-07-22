@@ -184,6 +184,49 @@
           ]
         }
       ]
+    },
+    {
+      "id": "wo-8e50q49",
+      "name": "Chest Strength",
+      "day": "Chest Strength",
+      "category": "strength",
+      "phases": [
+        {
+          "id": "ph-w6zf2aw",
+          "label": "Heavy Press",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
+        },
+        {
+          "id": "ph-2pbjjcm",
+          "label": "Secondary Press",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
+        },
+        {
+          "id": "ph-whaihp9",
+          "label": "Stability",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
+        },
+        {
+          "id": "ph-8ersa02",
+          "label": "Power",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
+        },
+        {
+          "id": "ph-v9d6nnp",
+          "label": "Mobility",
+          "sets": 3,
+          "restSeconds": 60,
+          "pool": []
+        }
+      ]
     }
   ],
   "plan": {
