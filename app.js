@@ -245,7 +245,7 @@ function migrateWorkout(w) {
 }
 
 function pickForPhase(workoutId, phase) {
-  const pool = phase.pool || [];
+  const pool = (phase.pool || []).filter((exId) => findExercise(exId));
   if (pool.length === 0) return null;
   if (pool.length === 1) return pool[0];
   const rotation = state.phaseRotation;
@@ -835,8 +835,8 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
     const poolChips = pool.map((exId) => {
       const ex = findExercise(exId);
       return `
-        <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;">
-          ${ex ? ex.name : "?"}
+        <span style="display:inline-flex;align-items:center;gap:6px;background:${ex ? "var(--surface-2)" : "rgba(255,107,107,0.12)"};border:1px solid ${ex ? "var(--border)" : "rgba(255,107,107,0.4)"};border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;color:${ex ? "inherit" : "#ff8a8a"};">
+          ${ex ? ex.name : "⚠ exercício apagado — remove"}
           <button data-pool-remove="${idx}:${exId}" style="background:none;border:none;color:#ff6b6b;font-size:13px;line-height:1;padding:2px;">×</button>
         </span>`;
     }).join("");
@@ -1410,7 +1410,14 @@ function attachHandlers(hash) {
 
   const saveBuilderBtn = app.querySelector("#saveBuilderBtn");
   if (saveBuilderBtn) saveBuilderBtn.addEventListener("click", () => {
-    const { _sourceKey, ...clean } = builderDraft;
+    const { _sourceKey, ...draft } = builderDraft;
+    const clean = {
+      ...draft,
+      phases: draft.phases.map((p) => ({
+        ...p,
+        pool: (p.pool || []).filter((exId) => findExercise(exId)),
+      })),
+    };
     const exists = state.workouts.some((w) => w.id === clean.id);
     state.workouts = exists
       ? state.workouts.map((w) => (w.id === clean.id ? clean : w))
