@@ -116,7 +116,8 @@
           "sets": 4,
           "restSeconds": 60,
           "pool": [
-            "ex-006"
+            "ex-006",
+            "ex-vwqk03t"
           ]
         },
         {
@@ -125,7 +126,8 @@
           "sets": 4,
           "restSeconds": 60,
           "pool": [
-            "ex-006"
+            "ex-006",
+            "ex-7ln484l"
           ]
         },
         {
@@ -134,7 +136,8 @@
           "sets": 3,
           "restSeconds": 60,
           "pool": [
-            "ex-006"
+            "ex-006",
+            "ex-7ln484l"
           ]
         }
       ]
