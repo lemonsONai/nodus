@@ -88,7 +88,7 @@
     "defaultRestSeconds": 60,
     "accentColor": "#C9FF3D",
     "personName": "",
-    "backgroundStyle": "glow"
+    "backgroundStyle": "diagonal"
   },
   "workouts": [
     {
