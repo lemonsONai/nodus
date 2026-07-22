@@ -411,6 +411,13 @@
       "day": "Back Strength",
       "category": "strength",
       "phases": []
+    },
+    {
+      "id": "wo-1784761787200-udi9w",
+      "name": "Shoulder Strength",
+      "day": "Shoulder Strength",
+      "category": "strength",
+      "phases": []
     }
   ],
   "settings": {
