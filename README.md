@@ -144,6 +144,29 @@ guardar (✕), as alterações são descartadas — nada fica persistido a
 meio. O Player nunca é afetado pelo que estás a editar; só reflete a
 última versão guardada.
 
+## Fases e variação automática
+
+Cada treino já não é uma lista simples de exercícios — é uma sequência de
+**fases** (ex: "Primary Lift", "Pull", "Stability"), cada uma com o seu
+próprio número de séries e descanso. No Builder, cada fase tem uma
+**lista de opções** (pool) de exercícios que a podem preencher.
+
+- **1 exercício na fase**: comporta-se como antes, sempre o mesmo.
+- **2+ exercícios na fase**: a cada vez que **começas** esse treino no
+  Player, a app escolhe automaticamente um da lista, **rodando** para o
+  seguinte de cada vez (nunca repete o mesmo duas vezes seguidas,
+  desde que haja mais que uma opção). Assim, "Push" pode dar-te
+  Push-up numa sessão e Chest press na seguinte, sem teres de gerir
+  isso manualmente.
+
+O Player mostra sempre a fase antes do exercício (ex: "PRIMARY LIFT").
+Isto é guardado por dispositivo — se treinares o mesmo dia em aparelhos
+diferentes, a rotação de cada um é independente.
+
+Treinos antigos (da versão anterior, com lista simples de exercícios)
+são convertidos automaticamente para este formato na primeira vez que
+abrires esta versão — não precisas de repor nada.
+
 ## Adicionar um exercício novo
 
 Duas formas:

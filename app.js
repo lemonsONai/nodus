@@ -37,7 +37,13 @@ const state = {
     saveOverrides(overrides);
   },
   get workouts() {
-    return overrides.workouts || window.NODUS_DATA.workouts;
+    const raw = overrides.workouts || window.NODUS_DATA.workouts;
+    const migrated = raw.map(migrateWorkout);
+    if (JSON.stringify(migrated) !== JSON.stringify(raw)) {
+      overrides.workouts = migrated;
+      saveOverrides(overrides);
+    }
+    return migrated;
   },
   set workouts(v) {
     overrides.workouts = v;
@@ -64,7 +70,44 @@ const state = {
     overrides.history = v;
     saveOverrides(overrides);
   },
+  get phaseRotation() {
+    return overrides.phaseRotation || {};
+  },
+  set phaseRotation(v) {
+    overrides.phaseRotation = v;
+    saveOverrides(overrides);
+  },
 };
+
+/*
+  Migração automática: treinos antigos (lista simples de "exercises")
+  passam a "phases", cada fase com um pool de 1 exercício (o mesmo
+  comportamento de antes, só que já na estrutura nova). Corre uma vez e
+  fica guardado — não precisas de repor dados para isto acontecer.
+*/
+function migrateWorkout(w) {
+  if (w.phases) return w;
+  const phases = (w.exercises || []).map((we, i) => ({
+    id: `ph-${i}`,
+    label: `Fase ${i + 1}`,
+    sets: we.sets || 1,
+    restSeconds: we.restSeconds || 60,
+    pool: [we.exerciseId],
+  }));
+  return { id: w.id, name: w.name, day: w.day, category: w.category, phases };
+}
+
+function pickForPhase(workoutId, phase) {
+  const pool = phase.pool || [];
+  if (pool.length === 0) return null;
+  if (pool.length === 1) return pool[0];
+  const rotation = state.phaseRotation;
+  const key = `${workoutId}:${phase.id}`;
+  const lastIndex = rotation[key] !== undefined ? rotation[key] : -1;
+  const nextIndex = (lastIndex + 1) % pool.length;
+  state.phaseRotation = { ...rotation, [key]: nextIndex };
+  return pool[nextIndex];
+}
 
 function dateKey(d) {
   return d.toISOString().slice(0, 10);
@@ -551,7 +594,7 @@ function viewCategoryList(cat) {
           ${isToday ? `<span style="position:absolute;top:10px;right:12px;color:var(--accent);font-size:10px;font-weight:600;letter-spacing:1px;">HOJE</span>` : ""}
           <p style="color:var(--text-faint);font-size:11px;margin:22px 0 6px;">Treino ${letter}</p>
           <p style="color:#fff;font-size:15px;font-weight:600;margin:0 0 4px;">${w.name}</p>
-          <p style="color:var(--text-faint);font-size:11px;margin:0;">${w.exercises.length} exercícios</p>
+          <p style="color:var(--text-faint);font-size:11px;margin:0;">${w.phases.length} fases</p>
         </div>`;
     }).join("");
 
@@ -585,7 +628,7 @@ function viewCategoryList(cat) {
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <button data-edit="${w.id}" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,0.06);border:none;color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;">${icon("edit")}</button>
-            <span style="color:var(--text-faint);font-size:12px;">${w.exercises.length} ex.</span>
+            <span style="color:var(--text-faint);font-size:12px;">${w.phases.length} fases</span>
           </div>
         </div>`).join("")}
     </div>` : `<p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">Ainda sem dias nesta categoria.</p>`}
@@ -611,7 +654,7 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
         name: presetDay ? `Treino ${presetDay}` : "Novo treino",
         day: presetDay || "",
         category,
-        exercises: [],
+        phases: [],
       };
     }
     builderDraft._sourceKey = sourceKey;
@@ -619,39 +662,54 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
 
   const workout = builderDraft;
 
-  const rows = workout.exercises.map((we, idx) => {
-    const ex = findExercise(we.exerciseId);
-    const sets = we.sets || 1;
+  const phaseRows = workout.phases.map((phase, idx) => {
+    const pool = phase.pool || [];
+    const poolChips = pool.map((exId) => {
+      const ex = findExercise(exId);
+      return `
+        <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;">
+          ${ex ? ex.name : "?"}
+          <button data-pool-remove="${idx}:${exId}" style="background:none;border:none;color:#ff6b6b;font-size:13px;line-height:1;padding:2px;">×</button>
+        </span>`;
+    }).join("");
+    const addable = state.exercises.filter((ex) => !pool.includes(ex.id));
+
     return `
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:14px;">${ex ? ex.name : "?"}</span>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <button data-move="${idx}:-1" style="background:none;border:none;color:var(--text-dim);font-size:15px;">↑</button>
-            <button data-move="${idx}:1" style="background:none;border:none;color:var(--text-dim);font-size:15px;">↓</button>
-            <button data-remove="${idx}" style="background:none;border:none;color:#ff6b6b;font-size:15px;">×</button>
-          </div>
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <input type="text" data-phase-label="${idx}" value="${phase.label}" style="flex:1;margin:0;font-size:14px;font-weight:600;">
+          <button data-phase-move="${idx}:-1" style="background:none;border:none;color:var(--text-dim);font-size:15px;">↑</button>
+          <button data-phase-move="${idx}:1" style="background:none;border:none;color:var(--text-dim);font-size:15px;">↓</button>
+          <button data-phase-remove="${idx}" style="background:none;border:none;color:#ff6b6b;font-size:15px;">×</button>
         </div>
-        <div style="display:flex;align-items:center;gap:16px;">
+
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="color:var(--text-faint);font-size:11px;">Séries</span>
-            <button data-sets="${idx}:-1" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">−</button>
-            <span style="font-size:13px;min-width:12px;text-align:center;">${sets}</span>
-            <button data-sets="${idx}:1" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">+</button>
+            <button data-phase-sets="${idx}:-1" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">−</button>
+            <span style="font-size:13px;min-width:12px;text-align:center;">${phase.sets || 1}</span>
+            <button data-phase-sets="${idx}:1" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">+</button>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="color:var(--text-faint);font-size:11px;">Descanso</span>
-            <button data-rest="${idx}:-15" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">−</button>
-            <span style="font-size:13px;min-width:32px;text-align:center;">${we.restSeconds}s</span>
-            <button data-rest="${idx}:15" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">+</button>
+            <button data-phase-rest="${idx}:-15" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">−</button>
+            <span style="font-size:13px;min-width:32px;text-align:center;">${phase.restSeconds || 60}s</span>
+            <button data-phase-rest="${idx}:15" style="width:24px;height:24px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);color:#fff;">+</button>
           </div>
         </div>
+
+        <p style="font-size:11px;color:var(--text-faint);margin:0 0 8px;">
+          Opções desta fase ${pool.length > 1 ? "(roda entre elas a cada sessão)" : ""}
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:${addable.length ? "10px" : "0"};">
+          ${poolChips || `<span style="color:var(--text-faint);font-size:12px;">Nenhuma ainda.</span>`}
+        </div>
+        ${addable.length ? `
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${addable.map((ex) => `<button class="btn" style="height:30px;padding:0 10px;font-size:11px;width:auto;" data-pool-add="${idx}:${ex.id}">+ ${ex.name}</button>`).join("")}
+        </div>` : ""}
       </div>`;
   }).join("");
-
-  const available = state.exercises.filter(
-    (ex) => !workout.exercises.some((we) => we.exerciseId === ex.id)
-  );
 
   const alreadySaved = state.workouts.some((w) => w.id === workout.id);
 
@@ -665,16 +723,11 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
     <label>Etiqueta do dia (opcional, ex: "A")</label>
     <input type="text" id="w-day" value="${workout.day || ""}">
 
-    <div class="card" style="padding:0;margin-bottom:20px;">
-      ${rows || `<p style="color:var(--text-faint);font-size:13px;padding:16px;">Sem exercícios ainda.</p>`}
+    <p class="section-label" style="margin-top:0;">Fases (roda automaticamente se tiveres mais que uma opção por fase)</p>
+    <div class="card" style="padding:0;margin-bottom:14px;">
+      ${phaseRows || `<p style="color:var(--text-faint);font-size:13px;padding:16px;">Sem fases ainda.</p>`}
     </div>
-
-    <p class="section-label">Adicionar exercício</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
-      ${available.map((ex) => `
-        <button class="btn" style="height:36px;padding:0 12px;font-size:12px;width:auto;" data-add-ex="${ex.id}">+ ${ex.name}</button>
-      `).join("")}
-    </div>
+    <button class="btn" style="width:100%;margin-bottom:24px;" id="addPhaseBtn">+ Nova fase</button>
 
     <button class="btn btn-accent" style="width:100%;" id="saveBuilderBtn">Guardar treino</button>
 
@@ -687,7 +740,22 @@ function viewBuilder(workoutIdOrCategory, presetDay) {
 
 /* ---------- Player ---------- */
 
-const playerState = { workoutId: null, index: 0, setIndex: 0, resting: false, seconds: 0, timer: null, finished: false };
+const playerState = { workoutId: null, index: 0, setIndex: 0, resting: false, seconds: 0, timer: null, finished: false, session: [] };
+
+function generateSession(workout) {
+  return workout.phases
+    .map((phase) => {
+      const exerciseId = pickForPhase(workout.id, phase);
+      if (!exerciseId) return null;
+      return {
+        phaseLabel: phase.label,
+        exerciseId,
+        sets: phase.sets || 1,
+        restSeconds: phase.restSeconds || 60,
+      };
+    })
+    .filter(Boolean);
+}
 
 function viewPlayer(workoutId) {
   const workout = state.workouts.find((w) => w.id === workoutId);
@@ -700,14 +768,16 @@ function viewPlayer(workoutId) {
     playerState.setIndex = 0;
     playerState.resting = false;
     playerState.finished = false;
+    playerState.session = generateSession(workout);
   }
 
-  const total = workout.exercises.length;
-  const slot = workout.exercises[playerState.index];
+  const session = playerState.session;
+  const total = session.length;
+  const slot = session[playerState.index];
   const ex = slot ? findExercise(slot.exerciseId) : null;
   const totalSets = (slot && slot.sets) || 1;
 
-  if (!ex) return `<p style="color:var(--text-dim);">Treino vazio. Adiciona exercícios no builder.</p>`;
+  if (!ex) return `<p style="color:var(--text-dim);">Este treino ainda não tem exercícios nas fases. Edita-o em Gerir.</p>`;
 
   if (playerState.finished) {
     return `
@@ -723,10 +793,11 @@ function viewPlayer(workoutId) {
 
   if (playerState.resting) {
     const isLastSetOfExercise = playerState.setIndex >= totalSets - 1;
+    const nextSlot = session[playerState.index + 1];
     return `
       ${topbarHtml(workout.name, `<a href="#/">${icon("close")}</a>`)}
       <p style="color:var(--text-dim);font-size:13px;text-align:center;margin-top:40px;">Descanso</p>
-      ${totalSets > 1 ? `<p style="color:var(--text-faint);font-size:12px;text-align:center;margin:0;">${isLastSetOfExercise ? "Próximo: " + (workout.exercises[playerState.index + 1] ? findExercise(workout.exercises[playerState.index + 1].exerciseId).name : "fim") : "Série " + (playerState.setIndex + 2) + " / " + totalSets + " de " + ex.name}</p>` : ""}
+      ${totalSets > 1 ? `<p style="color:var(--text-faint);font-size:12px;text-align:center;margin:0;">${isLastSetOfExercise ? "Próximo: " + (nextSlot ? findExercise(nextSlot.exerciseId).name : "fim") : "Série " + (playerState.setIndex + 2) + " / " + totalSets + " de " + ex.name}</p>` : ""}
       <p class="timer-display" id="timerDisplay">${playerState.seconds}</p>
       <div class="controls-row" style="justify-content:center;">
         <button class="btn" style="width:auto;padding:0 16px;" data-add-time="30">+30s</button>
@@ -738,6 +809,7 @@ function viewPlayer(workoutId) {
   return `
     <div class="player-scroll">
       ${topbarHtml(`${playerState.index + 1} / ${total}`, `<a href="#/">${icon("close")}</a>`)}
+      ${slot.phaseLabel ? `<p style="color:var(--accent);font-size:12px;font-weight:700;letter-spacing:1.5px;margin:0 0 8px;text-transform:uppercase;">${slot.phaseLabel}</p>` : ""}
       ${mediaHtml(ex.gif, ex.name)}
       <p style="font-size:22px;font-weight:600;margin-bottom:4px;">${ex.name}</p>
       <p style="color:var(--text-dim);font-size:14px;margin-bottom:${totalSets > 1 ? "2px" : "12px"};">${ex.primaryMuscle}${ex.secondaryMuscles && ex.secondaryMuscles.length ? " · secundário: " + ex.secondaryMuscles.join(", ") : ""}</p>
@@ -771,7 +843,7 @@ function skipToNextExercise() {
   clearInterval(playerState.timer);
   playerState.resting = false;
   const workout = state.workouts.find((w) => w.id === playerState.workoutId);
-  if (playerState.index >= workout.exercises.length - 1) {
+  if (playerState.index >= playerState.session.length - 1) {
     logSession(dateKey(new Date()), workout);
     playerState.finished = true;
   } else {
@@ -784,7 +856,7 @@ function goNext() {
   clearInterval(playerState.timer);
   playerState.resting = false;
   const workout = state.workouts.find((w) => w.id === playerState.workoutId);
-  const slot = workout.exercises[playerState.index];
+  const slot = playerState.session[playerState.index];
   const totalSets = (slot && slot.sets) || 1;
 
   if (playerState.setIndex < totalSets - 1) {
@@ -793,11 +865,11 @@ function goNext() {
     return;
   }
 
-  if (playerState.index >= workout.exercises.length - 1) {
+  if (playerState.index >= playerState.session.length - 1) {
     logSession(dateKey(new Date()), workout);
     playerState.finished = true;
   } else {
-    playerState.index = Math.min(playerState.index + 1, workout.exercises.length - 1);
+    playerState.index = Math.min(playerState.index + 1, playerState.session.length - 1);
     playerState.setIndex = 0;
   }
   render();
@@ -905,7 +977,7 @@ function viewManage() {
             <div>
               <span style="font-size:14px;">${w.name}</span>
               ${w.day ? `<span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.day}</span>` : ""}
-              <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.exercises.length} ex.</span>
+              <span style="color:var(--text-faint);font-size:11px;margin-left:8px;">${w.phases.length} fases</span>
             </div>
             <div style="display:flex;gap:6px;">
               <button class="btn" style="height:32px;padding:0 10px;font-size:12px;width:auto;" data-nav="#/builder/${w.id}">Editar</button>
@@ -1037,34 +1109,79 @@ function attachHandlers(hash) {
   );
 
   // Builder — tudo mexe no rascunho local (builderDraft), só grava ao tocar em "Guardar treino"
-  app.querySelectorAll("[data-add-ex]").forEach((el) =>
+  app.querySelectorAll("[data-phase-move]").forEach((el) =>
     el.addEventListener("click", () => {
-      const exerciseId = el.getAttribute("data-add-ex");
-      builderDraft.exercises = [...builderDraft.exercises, { exerciseId, restSeconds: 60, sets: 3 }];
-      render();
-    })
-  );
-  app.querySelectorAll("[data-remove]").forEach((el) =>
-    el.addEventListener("click", () => {
-      const idx = Number(el.getAttribute("data-remove"));
-      const exercises = [...builderDraft.exercises];
-      exercises.splice(idx, 1);
-      builderDraft.exercises = exercises;
-      render();
-    })
-  );
-  app.querySelectorAll("[data-move]").forEach((el) =>
-    el.addEventListener("click", () => {
-      const [idxStr, dirStr] = el.getAttribute("data-move").split(":");
+      const [idxStr, dirStr] = el.getAttribute("data-phase-move").split(":");
       const idx = Number(idxStr), dir = Number(dirStr);
-      const exercises = [...builderDraft.exercises];
+      const phases = [...builderDraft.phases];
       const newIdx = idx + dir;
-      if (newIdx < 0 || newIdx >= exercises.length) return;
-      [exercises[idx], exercises[newIdx]] = [exercises[newIdx], exercises[idx]];
-      builderDraft.exercises = exercises;
+      if (newIdx < 0 || newIdx >= phases.length) return;
+      [phases[idx], phases[newIdx]] = [phases[newIdx], phases[idx]];
+      builderDraft.phases = phases;
       render();
     })
   );
+  app.querySelectorAll("[data-phase-remove]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const idx = Number(el.getAttribute("data-phase-remove"));
+      const phases = [...builderDraft.phases];
+      phases.splice(idx, 1);
+      builderDraft.phases = phases;
+      render();
+    })
+  );
+  app.querySelectorAll("[data-phase-sets]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const [idxStr, deltaStr] = el.getAttribute("data-phase-sets").split(":");
+      const idx = Number(idxStr), delta = Number(deltaStr);
+      builderDraft.phases = builderDraft.phases.map((p, i) =>
+        i === idx ? { ...p, sets: Math.max(1, (p.sets || 1) + delta) } : p
+      );
+      render();
+    })
+  );
+  app.querySelectorAll("[data-phase-rest]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const [idxStr, deltaStr] = el.getAttribute("data-phase-rest").split(":");
+      const idx = Number(idxStr), delta = Number(deltaStr);
+      builderDraft.phases = builderDraft.phases.map((p, i) =>
+        i === idx ? { ...p, restSeconds: Math.max(0, (p.restSeconds || 60) + delta) } : p
+      );
+      render();
+    })
+  );
+  app.querySelectorAll("[data-phase-label]").forEach((el) =>
+    el.addEventListener("input", () => {
+      const idx = Number(el.getAttribute("data-phase-label"));
+      builderDraft.phases[idx].label = el.value;
+    })
+  );
+  app.querySelectorAll("[data-pool-add]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const [idxStr, exId] = el.getAttribute("data-pool-add").split(":");
+      const idx = Number(idxStr);
+      builderDraft.phases = builderDraft.phases.map((p, i) =>
+        i === idx ? { ...p, pool: [...(p.pool || []), exId] } : p
+      );
+      render();
+    })
+  );
+  app.querySelectorAll("[data-pool-remove]").forEach((el) =>
+    el.addEventListener("click", () => {
+      const [idxStr, exId] = el.getAttribute("data-pool-remove").split(":");
+      const idx = Number(idxStr);
+      builderDraft.phases = builderDraft.phases.map((p, i) =>
+        i === idx ? { ...p, pool: (p.pool || []).filter((id) => id !== exId) } : p
+      );
+      render();
+    })
+  );
+  const addPhaseBtn = app.querySelector("#addPhaseBtn");
+  if (addPhaseBtn) addPhaseBtn.addEventListener("click", () => {
+    builderDraft.phases = [...builderDraft.phases, { id: uid("ph"), label: "Nova fase", sets: 3, restSeconds: 60, pool: [] }];
+    render();
+  });
+
   const wNameInput = app.querySelector("#w-name");
   if (wNameInput) wNameInput.addEventListener("input", () => {
     builderDraft.name = wNameInput.value;
@@ -1074,26 +1191,6 @@ function attachHandlers(hash) {
     builderDraft.day = wDayInput.value;
   });
 
-  app.querySelectorAll("[data-sets]").forEach((el) =>
-    el.addEventListener("click", () => {
-      const [idxStr, deltaStr] = el.getAttribute("data-sets").split(":");
-      const idx = Number(idxStr), delta = Number(deltaStr);
-      builderDraft.exercises = builderDraft.exercises.map((we, i) =>
-        i === idx ? { ...we, sets: Math.max(1, (we.sets || 1) + delta) } : we
-      );
-      render();
-    })
-  );
-  app.querySelectorAll("[data-rest]").forEach((el) =>
-    el.addEventListener("click", () => {
-      const [idxStr, deltaStr] = el.getAttribute("data-rest").split(":");
-      const idx = Number(idxStr), delta = Number(deltaStr);
-      builderDraft.exercises = builderDraft.exercises.map((we, i) =>
-        i === idx ? { ...we, restSeconds: Math.max(0, we.restSeconds + delta) } : we
-      );
-      render();
-    })
-  );
   const saveBuilderBtn = app.querySelector("#saveBuilderBtn");
   if (saveBuilderBtn) saveBuilderBtn.addEventListener("click", () => {
     const { _sourceKey, ...clean } = builderDraft;
