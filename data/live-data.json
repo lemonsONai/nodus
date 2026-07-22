@@ -218,8 +218,7 @@
           "sets": 4,
           "restSeconds": 60,
           "pool": [
-            "ex-002",
-            "ex-009"
+            "ex-002"
           ]
         },
         {
@@ -227,19 +226,14 @@
           "label": "Pull",
           "sets": 3,
           "restSeconds": 60,
-          "pool": [
-            "ex-001",
-            "ex-010"
-          ]
+          "pool": []
         },
         {
           "id": "ph-push-stability",
           "label": "Stability",
           "sets": 3,
           "restSeconds": 45,
-          "pool": [
-            "ex-004"
-          ]
+          "pool": []
         }
       ]
     },
