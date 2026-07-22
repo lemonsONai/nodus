@@ -2,16 +2,18 @@
   "exercises": [
     {
       "id": "yg-005",
-      "name": "Torção sentada",
-      "category": "yoga",
-      "primaryMuscle": "Coluna",
+      "name": "Barbell Strict Press",
+      "category": "strength",
+      "primaryMuscle": "Shoulders",
       "secondaryMuscles": [
+        "Triceps",
+        "Upper Chest",
         "Core",
-        "Anca"
+        "Upper Back"
       ],
       "difficulty": "beginner",
-      "notes": "Roda a partir da base da coluna, mantém a espinha longa.",
-      "gif": "assets/yoga/seated-twist.gif",
+      "notes": "Keep your core tight and press the bar vertically without using leg drive.",
+      "gif": "assets/yoga/Barbell-Strict-Press.png",
       "thumbnail": "assets/thumbnails/seated-twist.webp"
     }
   ],
